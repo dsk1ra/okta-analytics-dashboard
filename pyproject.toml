@@ -1,8 +1,8 @@
 [project]
-name = "okta-dashboard-back"
-version = "0.0.0"
+name = "okta-analytics-dashboard"
+version = "0.1.0-alpha.1"
 requires-python = ">=3.12"
-description = "Okta Dashboard backend"
+description = "Okta Analytics Dashboard"
 
 [tool.black]
 line-length = 100

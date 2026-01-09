@@ -4,77 +4,106 @@
 [![Docker CI](https://github.com/dsk1ra/okta-analytics-dashboard/actions/workflows/docker.yml/badge.svg)](https://github.com/dsk1ra/okta-analytics-dashboard/actions/workflows/docker.yml)
 [![Dependency Health](https://github.com/dsk1ra/okta-analytics-dashboard/actions/workflows/deps.yml/badge.svg)](https://github.com/dsk1ra/okta-analytics-dashboard/actions/workflows/deps.yml)
 
-Django-based analytics dashboard for Okta system logs. Integrates with Okta APIs to collect and display authentication logs, system events, and security metrics.
+**Okta Analytics Dashboard** is a Django-based analytics platform for ingesting, storing, and analysing Okta authentication and system log data. It is intended for security engineers, analysts, and operations teams who require visibility into Okta activity for monitoring and investigative purposes.
+
+**Project status:** Alpha (pre-release). This project is under active development and is not yet intended for production use.
+
+---
+
+## Features
+
+* Ingestion of Okta System Log data via the Okta API
+* Persistent storage using MongoDB
+* Redis-backed caching for improved performance
+* Docker-based local development and deployment
+* Extensible Django application architecture
+* Foundational dashboard views for analytics visualisation
+
+---
 
 ## Requirements
 
-- Python 3.12+
-- Django 5.2
-- MongoDB 4.4+
-- Redis 6.0+
-- Docker & Docker Compose (optional)
+* Python 3.12 or later
+* Django 5.2
+* MongoDB 4.4 or later
+* Redis 6.0 or later
+* Docker and Docker Compose (optional, recommended)
+
+---
 
 ## Quick Start
 
 ### Local Development
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/dsk1ra/okta-analytics-dashboard.git
    cd okta-analytics-dashboard
    ```
 
-2. Create virtual environment:
+2. Create and activate a virtual environment:
+
    ```bash
    python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
    ```
 
 3. Install dependencies:
+
    ```bash
    pip install --upgrade "pip<25"
    pip install -r requirements.txt
    ```
 
-4. Configure environment:
+4. Configure environment variables:
+
    ```bash
    cp .env.example .env
-   # Edit .env with your Okta credentials and database settings
+   # Update .env with your Okta credentials and service configuration
    ```
 
-5. Run migrations:
+5. Apply database migrations:
+
    ```bash
    python manage.py migrate
    ```
 
-6. Start development server:
+6. Start the development server:
+
    ```bash
    python manage.py runserver
    ```
 
-Access the application at http://localhost:8000
+The application will be available at [http://localhost:8000](http://localhost:8000)
+
+---
 
 ### Docker Deployment
+
+For local development or evaluation using Docker:
 
 ```bash
 docker compose up --build
 ```
 
+---
+
 ## Configuration
 
-Required environment variables in `.env`:
+The following environment variables are required. Values should be provided via a `.env` file or a secure secrets management mechanism.
 
-```
+```env
 # Django
 DJANGO_SECRET_KEY=<your-secret-key>
 DEBUG=False
 DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
 
-# Database
+# MongoDB
 MONGO_HOST=mongodb
 MONGO_PORT=27017
 MONGO_DB_NAME=okta_dashboard
-MONGODB_URL=mongodb://<user>:<pass>@<host>:<port>/<dbname>
+MONGODB_URL=mongodb://<user>:<password>@<host>:<port>/<database>
 
 # Redis
 REDIS_HOST=redis
@@ -88,15 +117,23 @@ OKTA_CLIENT_SECRET=<client-secret>
 OKTA_API_TOKEN=<api-token>
 ```
 
+### Security Notes
+
+* Okta API tokens and client secrets must never be committed to source control
+* Use environment variables or a dedicated secrets manager for sensitive configuration
+* This project has not yet undergone a formal security review
+
+---
+
 ## Development
 
-### Run Tests
+### Running Tests
 
 ```bash
 pytest
 ```
 
-### Run Code Quality Checks
+### Code Quality and Static Analysis
 
 ```bash
 black .
@@ -105,32 +142,48 @@ ruff check .
 mypy .
 ```
 
-### Install Development Dependencies
+### Development Dependencies
 
 ```bash
 pip install -r requirements-dev.txt
 ```
 
-## Common Commands
+---
+
+## Common Management Commands
 
 ```bash
 # Fetch Okta logs
 python manage.py fetch_okta_logs_dpop
 
-# Create superuser
+# Create an administrative user
 python manage.py createsuperuser
 
-# Django shell
+# Open Django shell
 python manage.py shell
 
 # Collect static files (production)
 python manage.py collectstatic --noinput
 ```
 
-## License
+---
 
-MIT License. See [LICENSE](LICENSE) for details.
+## Versioning and Releases
+
+This project follows Semantic Versioning (MAJOR.MINOR.PATCH) with pre-release identifiers during early development.
+
+Current release: `v0.1.0-alpha.1`
+
+Release notes and checklists are available in [RELEASE.md](RELEASE.md).
+
+---
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and workflow expectations.
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
