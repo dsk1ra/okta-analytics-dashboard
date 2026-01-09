@@ -10,8 +10,6 @@
 
 **Project status:** Alpha (pre-release). This project is under active development and is not yet intended for production use.
 
----
-
 ## Features
 
 * Ingestion of Okta System Log data via the Okta API
@@ -21,17 +19,13 @@
 * Extensible Django application architecture
 * Foundational dashboard views for analytics visualisation
 
----
-
 ## Requirements
 
 * Python 3.12 or later
 * Django 5.2
 * MongoDB 4.4 or later
 * Redis 6.0 or later
-* Docker and Docker Compose (optional, recommended)
-
----
+* Docker and Docker Compose
 
 ## Quick Start
 
@@ -89,8 +83,6 @@ For local development or evaluation using Docker:
 docker compose up --build
 ```
 
----
-
 ## Configuration
 
 The following environment variables are required. Values should be provided via a `.env` file or a secure secrets management mechanism.
@@ -125,8 +117,6 @@ OKTA_API_TOKEN=<api-token>
 * Use environment variables or a dedicated secrets manager for sensitive configuration
 * This project has not yet undergone a formal security review
 
----
-
 ## Development
 
 ### Running Tests
@@ -150,8 +140,6 @@ mypy .
 pip install -r requirements-dev.txt
 ```
 
----
-
 ## Common Management Commands
 
 ```bash
@@ -168,8 +156,6 @@ python manage.py shell
 python manage.py collectstatic --noinput
 ```
 
----
-
 ## Versioning and Releases
 
 This project follows Semantic Versioning (MAJOR.MINOR.PATCH) with pre-release identifiers during early development.
@@ -178,13 +164,9 @@ Current release: `v0.1.0-alpha.1`
 
 Release notes and checklists are available in [RELEASE.md](RELEASE.md).
 
----
-
 ## Contributing
 
 Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines and workflow expectations.
-
----
 
 ## License
 
