@@ -3,6 +3,8 @@
 [![Django CI](https://github.com/dsk1ra/okta-analytics-dashboard/actions/workflows/django.yml/badge.svg)](https://github.com/dsk1ra/okta-analytics-dashboard/actions/workflows/django.yml)
 [![Docker CI](https://github.com/dsk1ra/okta-analytics-dashboard/actions/workflows/docker.yml/badge.svg)](https://github.com/dsk1ra/okta-analytics-dashboard/actions/workflows/docker.yml)
 [![Dependency Health](https://github.com/dsk1ra/okta-analytics-dashboard/actions/workflows/deps.yml/badge.svg)](https://github.com/dsk1ra/okta-analytics-dashboard/actions/workflows/deps.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 
 **Okta Analytics Dashboard** is a Django-based analytics platform for ingesting, storing, and analysing Okta authentication and system log data. It is intended for security engineers, analysts, and operations teams who require visibility into Okta activity for monitoring and investigative purposes.
 
