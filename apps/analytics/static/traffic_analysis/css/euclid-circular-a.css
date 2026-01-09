@@ -1,0 +1,33 @@
+/* Euclid Circular A font face definitions */
+/* Using fallback to similar system fonts since CDN is unavailable */
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: local('Inter'), local('SF Pro Display'), local('Segoe UI'), local('system-ui');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: local('Inter Medium'), local('SF Pro Display Medium'), local('Segoe UI Semibold'), local('system-ui');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: local('Inter SemiBold'), local('SF Pro Display Semibold'), local('Segoe UI Semibold'), local('system-ui');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Euclid Circular A';
+    src: local('Inter Bold'), local('SF Pro Display Bold'), local('Segoe UI Bold'), local('system-ui');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}

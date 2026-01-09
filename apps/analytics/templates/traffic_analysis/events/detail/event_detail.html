@@ -1,0 +1,602 @@
+{% load static %}
+{% load event_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Detail - Okta Events Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/euclid-circular-a.css' %}">
+    <link rel="stylesheet" href="{% static 'rest_framework/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/chart.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/dashboard.css' %}" nonce="{{ nonce }}">
+    <style nonce="{{ nonce }}">
+        /* Event detail styles to match table font sizes */
+        .event-detail-row {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .event-detail-label {
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .event-detail-value {
+            font-size: 14px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+        }
+        
+        .content-card .card-title {
+            font-size: 16px;
+        }
+        
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+        
+        .target-item {
+            font-size: 14px;
+        }
+        
+        pre {
+            font-size: 13px;
+        }
+        
+        .event-detail-section h6 {
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .text-muted {
+            font-size: 14px;
+        }
+        
+        .btn {
+            font-size: 12px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar Toggle Button -->
+    <div class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/dashboard/" class="sidebar-brand">
+                Okta<span>Analytics</span>
+            </a>
+        </div>
+        
+        <div class="pt-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/events/">
+                        <i class="fas fa-list-alt"></i>
+                        <span>Events</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/alerts/">
+                        <i class="fas fa-bell"></i>
+                        <span>Alerts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/metrics/">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Metrics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/reports/">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-5">
+                    <a class="nav-link" href="/settings/">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout/">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div>
+                <h1 class="page-title">Event Details</h1>
+                <p class="page-description">
+                    <a href="/events/" class="text-decoration-none">
+                        <i class="fas fa-arrow-left"></i> Back to Events
+                    </a>
+                </p>
+            </div>
+            <div class="user-dropdown">
+                <div class="user-info">
+                    <div class="user-name">Admin User</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+                <div class="user-avatar">A</div>
+            </div>
+        </div>
+
+        <!-- Event Overview -->
+        <div class="content-card mt-4">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <span class="event-id">{{ event.uuid }}</span>
+                </h2>
+                <div>
+                    {% if event.severity == 'HIGH' %}
+                    <span class="status-badge status-failure">High Severity</span>
+                    {% elif event.severity == 'MEDIUM' %}
+                    <span class="status-badge status-warning">Medium Severity</span>
+                    {% elif event.severity == 'LOW' %}
+                    <span class="status-badge status-neutral">Low Severity</span>
+                    {% else %}
+                    <span class="status-badge status-neutral">Info</span>
+                    {% endif %}
+                    {% if event.outcome.result == 'SUCCESS' %}
+                    <span class="status-badge status-success">Success</span>
+                    {% elif event.outcome.result == 'FAILURE' %}
+                    <span class="status-badge status-failure">Failed</span>
+                    {% else %}
+                    <span class="status-badge status-neutral">{{ event.outcome.result|default:"Unknown" }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <h5 class="section-title">{{ event.eventType }}</h5>
+                        <p class="text-muted">{{ event.display_message }}</p>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="detail-label">Event Time</div>
+                        <div class="detail-value">{{ event.published_formatted }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="detail-label">Legacy Event Type</div>
+                        <div class="detail-value">{{ event.legacyEventType|default:"N/A" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Information -->
+        <div class="row mt-4">
+            <!-- User/Actor Information -->
+            <div class="col-md-6">
+                <div class="content-card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title">Actor Information</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">User ID</div>
+                            <div class="event-detail-value">{{ event.actor.id|default:"N/A" }}</div>
+                        </div>
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">User Type</div>
+                            <div class="event-detail-value">{{ event.actor.type|default:"N/A" }}</div>
+                        </div>
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Display Name</div>
+                            <div class="event-detail-value">{{ event.actor.display_name|default:"N/A" }}</div>
+                        </div>
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Alternate ID</div>
+                            <div class="event-detail-value">{{ event.actor.alternate_id|default:"N/A" }}</div>
+                        </div>
+                        {% if event.actor.detailEntry %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Details</div>
+                            <div class="event-detail-value">{{ event.actor.detailEntry }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target Information -->
+            <div class="col-md-6">
+                <div class="content-card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title">Target Information</h2>
+                    </div>
+                    <div class="card-body">
+                        {% for i in "01234"|make_list %}
+                            {% with target_key="target"|add:i %}
+                                {% if event|get_item:target_key %}
+                                <div class="target-item mb-3">
+                                    <div class="event-detail-row">
+                                        <div class="event-detail-label">Target Type</div>
+                                        <div class="event-detail-value">{{ event|get_item:target_key|get_item:"type"|default:"N/A" }}</div>
+                                    </div>
+                                    <div class="event-detail-row">
+                                        <div class="event-detail-label">Target ID</div>
+                                        <div class="event-detail-value">{{ event|get_item:target_key|get_item:"id"|default:"N/A" }}</div>
+                                    </div>
+                                    <div class="event-detail-row">
+                                        <div class="event-detail-label">Display Name</div>
+                                        <div class="event-detail-value">
+                                            {{ event|get_item:target_key|get_item:"display_name"|default:"N/A" }}
+                                        </div>
+                                    </div>
+                                    <div class="event-detail-row">
+                                        <div class="event-detail-label">Alternate ID</div>
+                                        <div class="event-detail-value">
+                                            {{ event|get_item:target_key|get_item:"alternate_id"|default:"N/A" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if not forloop.last %}<hr>{% endif %}
+                                {% endif %}
+                            {% endwith %}
+                        {% endfor %}
+                        {% if not event.target0 %}
+                        <div class="text-muted">No target information available</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <!-- Client Information -->
+            <div class="col-md-6">
+                <div class="content-card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title">Client Information</h2>
+                    </div>
+                    <div class="card-body">
+                        {% if event.client and event.client.ipAddress %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">IP Address</div>
+                            <div class="event-detail-value">{{ event.client.ipAddress|default:"N/A" }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.client and event.client.user_agent %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">User Agent</div>
+                            <div class="event-detail-value">{{ event.client.user_agent|default:"N/A" }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.client and event.client.device %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Device</div>
+                            <div class="event-detail-value">{{ event.client.device|default:"N/A" }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.client and event.client.zone %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Zone</div>
+                            <div class="event-detail-value">{{ event.client.zone|default:"N/A" }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.client and event.client.geographical_context %}
+                        <div class="event-detail-section mt-4">
+                            <h6>Geographical Context</h6>
+                            {% if event.client.geographical_context.city %}
+                            <div class="event-detail-row">
+                                <div class="event-detail-label">City</div>
+                                <div class="event-detail-value">{{ event.client.geographical_context.city }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if event.client.geographical_context.state %}
+                            <div class="event-detail-row">
+                                <div class="event-detail-label">State</div>
+                                <div class="event-detail-value">{{ event.client.geographical_context.state }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if event.client.geographical_context.country %}
+                            <div class="event-detail-row">
+                                <div class="event-detail-label">Country</div>
+                                <div class="event-detail-value">{{ event.client.geographical_context.country }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if event.client.geographical_context.geolocation %}
+                            <div class="event-detail-row">
+                                <div class="event-detail-label">Coordinates</div>
+                                <div class="event-detail-value">
+                                    {{ event.client.geographical_context.geolocation.lat }}, 
+                                    {{ event.client.geographical_context.geolocation.lon }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if not event.client or event.client.ipAddress == None and event.client.device == None and event.client.user_agent == None %}
+                        <div class="text-muted">No client information available</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authentication Information -->
+            <div class="col-md-6">
+                <div class="content-card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title">Authentication Context</h2>
+                    </div>
+                    <div class="card-body">
+                        {% if event.authenticationContext %}
+                        {% if event.authenticationContext.authenticationProvider %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Authentication Provider</div>
+                            <div class="event-detail-value">{{ event.authenticationContext.authenticationProvider }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.authenticationContext.credentialProvider %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Credential Provider</div>
+                            <div class="event-detail-value">{{ event.authenticationContext.credentialProvider }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.authenticationContext.credentialType %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Credential Type</div>
+                            <div class="event-detail-value">{{ event.authenticationContext.credentialType }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.authenticationContext.issuer %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Issuer</div>
+                            <div class="event-detail-value">{{ event.authenticationContext.issuer }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.authenticationContext.interface %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Interface</div>
+                            <div class="event-detail-value">{{ event.authenticationContext.interface }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.authenticationContext.authenticationStep %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Authentication Step</div>
+                            <div class="event-detail-value">{{ event.authenticationContext.authenticationStep }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.authenticationContext.externalSessionId %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">External Session ID</div>
+                            <div class="event-detail-value">{{ event.authenticationContext.externalSessionId }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.authenticationContext.rootSessionId %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Root Session ID</div>
+                            <div class="event-detail-value">{{ event.authenticationContext.rootSessionId }}</div>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="text-muted">No authentication context available</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="row mt-4">
+            <!-- Security Context -->
+            <div class="col-md-6">
+                <div class="content-card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title">Security Context</h2>
+                    </div>
+                    <div class="card-body">
+                        {% if event.securityContext %}
+                        {% if event.securityContext.asNumber %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">AS Number</div>
+                            <div class="event-detail-value">{{ event.securityContext.asNumber }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.securityContext.asOrg %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">AS Organization</div>
+                            <div class="event-detail-value">{{ event.securityContext.asOrg }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.securityContext.isp %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">ISP</div>
+                            <div class="event-detail-value">{{ event.securityContext.isp }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.securityContext.domain %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Domain</div>
+                            <div class="event-detail-value">{{ event.securityContext.domain }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if event.securityContext.isProxy %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Is Proxy</div>
+                            <div class="event-detail-value">{{ event.securityContext.isProxy }}</div>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="text-muted">No security context available</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction and Debug Info -->
+            <div class="col-md-6">
+                <div class="content-card h-100">
+                    <div class="card-header">
+                        <h2 class="card-title">Transaction Information</h2>
+                    </div>
+                    <div class="card-body">
+                        {% if event.transaction %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Transaction Type</div>
+                            <div class="event-detail-value">{{ event.transaction.type|default:"N/A" }}</div>
+                        </div>
+                        
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Transaction ID</div>
+                            <div class="event-detail-value">{{ event.transaction.id|default:"N/A" }}</div>
+                        </div>
+                        
+                        {% if event.transaction.detail %}
+                        <div class="event-detail-row">
+                            <div class="event-detail-label">Transaction Details</div>
+                            <div class="event-detail-value">
+                                <pre>{{ event.transaction.detail|pprint }}</pre>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="text-muted">No transaction information available</div>
+                        {% endif %}
+                        
+                        {% if event.debugContext and event.debugContext.debugData %}
+                        <div class="event-detail-section mt-4">
+                            <h6>Debug Information</h6>
+                            <div class="event-detail-row">
+                                <div class="event-detail-label">Debug Data</div>
+                                <div class="event-detail-value">
+                                    <pre>{{ event.debugContext.debugData|pprint }}</pre>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Raw JSON -->
+        <div class="content-card mt-4 mb-5">
+            <div class="card-header">
+                <h2 class="card-title">Raw Event Data</h2>
+                <button class="btn btn-sm btn-outline-secondary" id="toggleRawJson">
+                    <i class="fas fa-code"></i> Toggle JSON
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="rawJsonContainer" style="display: none;" nonce="{{ nonce }}">
+                    <pre id="rawJson" class="bg-light p-3 rounded">{{ event_json }}</pre>
+                </div>
+            </div>
+        </div>
+
+        {% if event.severity == 'HIGH' or event.outcome.result == 'FAILURE' %}
+        <!-- Actions Footer -->
+        <div class="action-footer">
+            <div class="content-card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-danger">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            This event requires attention
+                        </span>
+                    </div>
+                    <div>
+                        <a href="/forensic/investigate?event_id={{ event.uuid }}" class="btn btn-danger">
+                            <i class="fas fa-shield-alt"></i> Investigate Threat
+                        </a>
+                        <a href="/events/" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-arrow-left"></i> Back to Events
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="{% static 'rest_framework/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+    <script nonce="{{ nonce }}">
+        // Toggle sidebar on mobile
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            
+            if (window.innerWidth <= 767) {
+                if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                    sidebar.classList.remove('show');
+                }
+            }
+        });
+        
+        // Toggle raw JSON display
+        document.getElementById('toggleRawJson').addEventListener('click', function() {
+            const container = document.getElementById('rawJsonContainer');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

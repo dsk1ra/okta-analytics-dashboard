@@ -1,0 +1,1472 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okta Metrics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/euclid-circular-a.css' %}">
+    <link rel="stylesheet" href="{% static 'rest_framework/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/chart.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/dashboard.css' %}" nonce="{{ nonce }}">
+</head>
+<body>
+    <!-- Sidebar Toggle Button -->
+    <div class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/dashboard/" class="sidebar-brand">
+                Okta<span>Analytics</span>
+            </a>
+        </div>
+        
+        <div class="pt-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/events/">
+                        <i class="fas fa-list-alt"></i>
+                        <span>Events</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/alerts/">
+                        <i class="fas fa-bell"></i>
+                        <span>Alerts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/metrics/">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Metrics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/reports/">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-5">
+                    <a class="nav-link" href="/settings/">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout/">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div>
+                <h1 class="page-title">Authentication Metrics</h1>
+                <p class="page-description">Analyze authentication patterns and usage statistics across your organization.</p>
+            </div>
+            <div class="user-dropdown">
+                <div class="user-info">
+                    <div class="user-name">Admin User</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+                <div class="user-avatar">A</div>
+            </div>
+        </div>
+        
+        <!-- Time filter -->
+        <div class="filters mb-4">
+            <button class="filter-btn {% if days == 7 %}active{% endif %}" data-period="7d">Last 7 Days</button>
+            <button class="filter-btn {% if days == 14 %}active{% endif %}" data-period="14d">Last 14 Days</button>
+            <button class="filter-btn {% if days == 30 %}active{% endif %}" data-period="30d">Last 30 Days</button>
+            <button class="filter-btn {% if days == 90 %}active{% endif %}" data-period="90d">Custom Range</button>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-primary">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">AUTH SUCCESS RATE</div>
+                            <div class="stat-value" id="auth-success-rate">{{ auth_success_rate }}%</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend" id="auth-rate-trend">
+                            <i class="fas fa-arrow-up mr-1" id="auth-rate-trend-icon"></i> {{ auth_rate_change }}%
+                        </div>
+                        <div class="stat-period">vs. previous period</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-success">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">MFA USAGE RATE</div>
+                            <div class="stat-value" id="mfa-usage-rate">{{ mfa_usage_rate }}%</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend" id="mfa-rate-trend">
+                            <i class="fas fa-arrow-up mr-1" id="mfa-rate-trend-icon"></i> {{ mfa_rate_change }}%
+                        </div>
+                        <div class="stat-period">vs. previous period</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-warning">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">AVG SESSION TIME</div>
+                            <div class="stat-value" id="avg-session-time">{{ avg_session_time }}m</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend" id="session-time-trend">
+                            <i class="fas fa-arrow-down mr-1" id="session-time-trend-icon"></i> {{ session_time_change }}%
+                        </div>
+                        <div class="stat-period">vs. previous period</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">FAILED LOGINS</div>
+                            <div class="stat-value" id="failed-logins-count">{{ failed_logins_count }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend" id="failed-logins-trend">
+                            <i class="fas fa-arrow-down mr-1" id="failed-logins-trend-icon"></i> {{ failed_logins_change }}%
+                        </div>
+                        <div class="stat-period">vs. previous period</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authentication Activity -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2 class="card-title">Authentication Activity</h2>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="authActivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage by Device and Location -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="content-card" id="deviceCard">
+                    <div class="card-header">
+                        <h2 class="card-title">Device Usage</h2>
+                        <div class="filters">
+                            <button class="filter-btn active" data-period="30d" data-target="deviceStats">30 Days</button>
+                            <button class="filter-btn" data-period="60d" data-target="deviceStats">60 Days</button>
+                            <button class="filter-btn" data-period="90d" data-target="deviceStats">90 Days</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="chart-container" id="deviceChartContainer">
+                            <canvas id="deviceStatsChart" height="360" style="width: 100%; height: 360px;"></canvas>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <div id="deviceStatsLoading" class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div id="deviceStatsError" class="alert alert-danger" style="display: none;" nonce="{{ nonce }}">
+                                Error loading device statistics
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="content-card" id="mapCard">
+                    <div class="okta-card-header">
+                        <h2 class="okta-card-title">Geographic Distribution</h2>
+                        <button class="btn btn-sm btn-outline-secondary" id="expandMapBtn" title="Expand map">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="okta-card-body p-3">
+                        <div class="okta-map-container" id="worldMap">
+                            <!-- Map will be rendered here -->
+                        </div>
+                        <div class="mt-3 geo-lists-section">
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6">
+                                    <h6 class="mb-3 fw-semibold">Top Locations</h6>
+                                    <div class="geo-list-scroll">
+                                        {% if usage_by_location %}
+                                            {% with usage_by_location|length as total_locations %}
+                                                {% for country, count in usage_by_location.items %}
+                                                <div class="mb-2 d-flex justify-content-between geo-item {% if forloop.counter > 3 %}geo-extra{% endif %}" {% if forloop.counter > 3 %}style="display: none;"{% endif %}>
+                                                    <span>{{ country }}</span>
+                                                    <span class="fw-bold">{{ count }}</span>
+                                                </div>
+                                                {% endfor %}
+                                            {% endwith %}
+                                        {% else %}
+                                            <div class="mb-2 d-flex justify-content-between">
+                                                <span>No location data available</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6">
+                                    <h6 class="mb-3 fw-semibold">Top Cities</h6>
+                                    <div class="geo-list-scroll">
+                                        {% if usage_by_city %}
+                                            {% with usage_by_city|length as total_cities %}
+                                                {% for city, count in usage_by_city.items %}
+                                                <div class="mb-2 d-flex justify-content-between align-items-center geo-item {% if forloop.counter > 3 %}geo-extra{% endif %}" {% if forloop.counter > 3 %}style="display: none;"{% endif %}>
+                                                    <span>{{ city }}</span>
+                                                    <span class="okta-badge okta-badge-primary">{{ count }} logins</span>
+                                                </div>
+                                                {% endfor %}
+                                            {% endwith %}
+                                        {% else %}
+                                            <div class="mb-2 d-flex justify-content-between align-items-center">
+                                                <span>No city data available</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% with loc_len=usage_by_location|length city_len=usage_by_city|length %}
+                                {% if loc_len|default:0 > 3 or city_len|default:0 > 3 %}
+                                <div class="geo-toggle-wrapper">
+                                    <button class="btn btn-sm btn-outline-secondary" id="toggleGeoBtn">See all</button>
+                                </div>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MFA & Authentication Methods -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="content-card" id="mfaCard">
+                    <div class="card-header">
+                        <h2 class="card-title">MFA Methods Distribution</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            {% for method, count in auth_methods_top %}
+                            <div class="col-4">
+                                <div class="metric-gauge">
+                                    <div class="gauge-chart">
+                                        <canvas id="mfaGauge{{ forloop.counter }}"></canvas>
+                                        <div class="gauge-value" id="mfa-gauge-value-{{ forloop.counter }}">
+                                            {% if method %}
+                                                0%
+                                            {% else %}
+                                                0%
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="gauge-label" id="mfa-gauge-label-{{ forloop.counter }}" data-method="{{ method }}">
+                                        {% if method == "OTP" %}
+                                            Authenticator App
+                                        {% elif method == "PASSWORD" %}
+                                            Password
+                                        {% elif method == "SMS" %}
+                                            SMS
+                                        {% elif method == "EMAIL" %}
+                                            Email
+                                        {% elif method == "WEBAUTHN" %}
+                                            Security Key
+                                        {% else %}
+                                            {{ method|default:"Unknown" }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="content-card" id="appCard">
+                    <div class="card-header">
+                        <h2 class="card-title">App Usage</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="metric-chart-container">
+                            <canvas id="appUsageChart"></canvas>
+                        </div>
+                        <div class="mt-4">
+                            <h6>Top Applications</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Application</th>
+                                            <th>Sessions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                            {% if usage_by_app_top %}
+                                                {% with usage_by_app_top|length as total_apps %}
+                                                    {% for app, count in usage_by_app_top %}
+                                                    <tr class="app-row {% if forloop.counter > 3 %}app-extra{% endif %}" {% if forloop.counter > 3 %}style="display: none;"{% endif %}>
+                                                        <td>{{ app }}</td>
+                                                        <td>{{ count }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                {% endwith %}
+                                            {% else %}
+                                            <tr>
+                                                <td colspan="2" class="text-center">No application usage data available</td>
+                                            </tr>
+                                            {% endif %}
+                                    </tbody>
+                                </table>
+                                    {% with app_len=usage_by_app_top|length %}
+                                        {% if app_len|default:0 > 3 %}
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-outline-secondary" id="toggleAppBtn">See all</button>
+                                        </div>
+                                        {% endif %}
+                                    {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage Patterns -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2 class="card-title">Usage Patterns</h2>
+            </div>
+            <div class="card-body">
+                <h5>Hourly Activity (Last 7 Days)</h5>
+                <div class="heatmap-container-wrapper">
+                    <div class="heatmap-labels-x">
+                        <div>12 AM</div>
+                        <div>6 AM</div>
+                        <div>12 PM</div>
+                        <div>6 PM</div>
+                        <div>11 PM</div>
+                    </div>
+                    <div class="heatmap-main-content">
+                        <div class="heatmap-labels-y" id="heatmapLabelsY"></div>
+                        <div class="heatmap-container" id="activityHeatmap">
+                            <!-- Heatmap cells will be dynamically generated -->
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <p>Peak usage hour: <strong id="peak-hour">{{ peak_usage_hour }}:00</strong> (<span id="peak-hour-avg">average of 0 logins</span>)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{% static 'rest_framework/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js" nonce="{{ nonce }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.3.3/dist/js/jsvectormap.min.js" nonce="{{ nonce }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.3.3/dist/maps/world.js" nonce="{{ nonce }}"></script>
+    <script nonce="{{ nonce }}">
+        // Ensure all metrics variables are defined with defaults
+        const metricsData = {
+            auth_success_rate: {{ auth_success_rate|default:"98.5" }},
+            auth_rate_change: {{ auth_rate_change|default:"0" }},
+            mfa_usage_rate: {{ mfa_usage_rate|default:"68.0" }},
+            mfa_rate_change: {{ mfa_rate_change|default:"0" }},
+            avg_session_time: {{ avg_session_time|default:"30" }},
+            session_time_change: {{ session_time_change|default:"0" }},
+            peak_usage_hour: {{ peak_usage_hour|default:"10" }},
+            failed_logins_count: {{ failed_logins_count|default:"0" }},
+            failed_logins_change: {{ failed_logins_change|default:"0" }}
+        };
+        
+        // Toggle sidebar on mobile
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+        
+        // Period filter buttons
+        document.querySelectorAll('.filter-btn[data-period]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.filter-btn[data-period]').forEach(function(btn) {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Get the selected timeframe
+                var timeframe = this.getAttribute('data-period');
+                
+                // Convert timeframe to days
+                var days;
+                switch(timeframe) {
+                    case '7d':
+                        days = 7;
+                        break;
+                    case '14d':
+                        days = 14;
+                        break;
+                    case '30d':
+                        days = 30;
+                        break;
+                    case '90d':
+                        days = 90;
+                        break;
+                    default:
+                        days = 30;
+                }
+                
+                // Reload the page with new days parameter
+                window.location.href = '?days=' + days;
+            });
+        });
+        
+        // Function to fetch authentication activity data and update the chart
+        function fetchAuthActivityData(timeframe) {
+            // Fetch data from our API endpoint
+            fetch(`/api/statistics/auth-activity/?timeframe=${timeframe}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Parse the JSON data
+                    const dates = JSON.parse(data.dates);
+                    const successData = JSON.parse(data.success);
+                    const failureData = JSON.parse(data.failure);
+                    const mfaData = JSON.parse(data.mfa);
+                    
+                    // Update the chart with new data
+                    updateAuthActivityChart(dates, successData, failureData, mfaData);
+                })
+                .catch(error => {
+                    console.error('Error fetching authentication activity data:', error);
+                    // You could show an error message to the user here
+                });
+        }
+        
+        // Function to update the authentication activity chart with new data
+        function updateAuthActivityChart(dates, successData, failureData, mfaData) {
+            // Update the chart data
+            authActivityChart.data.labels = dates;
+            authActivityChart.data.datasets[0].data = successData;
+            authActivityChart.data.datasets[1].data = failureData;
+            authActivityChart.data.datasets[2].data = mfaData;
+            
+            // Update the chart
+            authActivityChart.update();
+        }
+        
+        // Authentication Activity Chart
+        const authActivityCtx = document.getElementById('authActivityChart').getContext('2d');
+        const authActivityChart = new Chart(authActivityCtx, {
+            type: 'line',
+            data: {
+                labels: {% if auth_activity.dates %}{{ auth_activity.dates|safe }}{% else %}['Feb 1', 'Feb 8', 'Feb 15', 'Feb 22', 'Mar 1', 'Mar 8', 'Mar 15', 'Mar 22']{% endif %},
+                datasets: [
+                    {
+                        label: 'Successful Authentications',
+                        data: {% if auth_activity.success %}{{ auth_activity.success|safe }}{% else %}[423, 456, 498, 523, 489, 532, 498, 510]{% endif %},
+                        borderColor: '#01C853',
+                        backgroundColor: 'rgba(1, 200, 83, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#01C853',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'Failed Authentications',
+                        data: {% if auth_activity.failure %}{{ auth_activity.failure|safe }}{% else %}[32, 28, 35, 24, 38, 21, 18, 23]{% endif %},
+                        borderColor: '#FF9800',
+                        backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#FF9800',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: 'MFA Events',
+                        data: {% if auth_activity.mfa %}{{ auth_activity.mfa|safe }}{% else %}[312, 356, 378, 402, 389, 432, 398, 423]{% endif %},
+                        borderColor: '#0D6EFD',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#0D6EFD',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Device Usage Chart
+        const deviceCtx = document.getElementById('deviceStatsChart').getContext('2d');
+        // Collect the device data from the server
+        const deviceData = {
+            labels: [
+                {% for device, count in usage_by_device.items %}
+                    '{{ device }}'{% if not forloop.last %},{% endif %}
+                {% empty %}
+                    'Desktop', 'Mobile', 'Tablet', 'API', 'Unknown'
+                {% endfor %}
+            ],
+            data: [
+                {% for device, count in usage_by_device.items %}
+                    {{ count }}{% if not forloop.last %},{% endif %}
+                {% empty %}
+                    58, 32, 6, 4, 0
+                {% endfor %}
+            ]
+        };
+        
+        // Calculate total device usage
+        const totalDeviceUsage = deviceData.data.reduce((sum, count) => sum + count, 0);
+        
+        // Calculate percentages for each device type
+        const devicePercentages = deviceData.data.map(count => {
+            return totalDeviceUsage > 0 ? Math.round((count / totalDeviceUsage) * 100) : 0;
+        });
+        
+        // Update the percentage displays in the HTML
+        const deviceTypes = ['desktop', 'mobile', 'tablet', 'api', 'unknown'];
+        for (let i = 0; i < deviceTypes.length; i++) {
+            const deviceType = deviceTypes[i];
+            // Find the index of this device type in the labels array (case insensitive)
+            const dataIndex = deviceData.labels.findIndex(label => 
+                label.toLowerCase() === deviceType.charAt(0).toUpperCase() + deviceType.slice(1).toLowerCase());
+            
+            if (dataIndex !== -1) {
+                const percentage = devicePercentages[dataIndex];
+                const element = document.getElementById(`${deviceType}-percentage`);
+                if (element) {
+                    element.textContent = `${percentage}%`;
+                }
+            }
+        }
+        
+        const deviceChart = new Chart(deviceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: deviceData.labels,
+                datasets: [{
+                    data: deviceData.data,
+                    backgroundColor: ['#4B77BE', '#1ABC9C', '#F39C12', '#9B59B6', '#95A5A6'],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: {
+                                size: 12,
+                                family: 'Euclid Circular A'
+                            },
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const value = data.datasets[0].data[i];
+                                        const percentage = totalDeviceUsage > 0 ? Math.round((value / totalDeviceUsage) * 100) : 0;
+                                        return {
+                                            text: `${label}: ${percentage}%`,
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const percentage = totalDeviceUsage > 0 ? Math.round((value / totalDeviceUsage) * 100) : 0;
+                                return `${label}: ${percentage}% (${value} sessions)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Render Usage Patterns Heatmap from real data
+        (function renderHeatmap() {
+            const matrix = {{ hourly_activity.matrix|safe|default:"[]" }};
+            const dayLabels = {{ hourly_activity.day_labels|safe|default:"[]" }};
+            const labelsContainer = document.getElementById('heatmapLabelsY');
+            const heatmapContainer = document.getElementById('activityHeatmap');
+            if (!Array.isArray(matrix) || matrix.length === 0 || !labelsContainer || !heatmapContainer) return;
+
+            // Map short day names to full for display
+            const dayNameMap = {Sun: 'Sunday', Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday'};
+            labelsContainer.innerHTML = '';
+            dayLabels.forEach(d => {
+                const div = document.createElement('div');
+                div.textContent = dayNameMap[d] || d;
+                labelsContainer.appendChild(div);
+            });
+
+            // Compute max for scaling intensity
+            let maxVal = 0;
+            matrix.forEach(row => row.forEach(v => { if (v > maxVal) maxVal = v; }));
+            const getClassForVal = (v) => {
+                if (!v || maxVal === 0) return 'heatmap-cell';
+                const bucket = Math.ceil((v / maxVal) * 5);
+                return 'heatmap-cell heatmap-cell-' + Math.min(5, Math.max(1, bucket));
+            };
+
+            // Build heatmap grid: rows (days) x columns (24 hours)
+            heatmapContainer.innerHTML = '';
+            matrix.forEach((row, dayIdx) => {
+                for (let hour = 0; hour < 24; hour++) {
+                    const v = row[hour] || 0;
+                    const cell = document.createElement('div');
+                    cell.className = getClassForVal(v);
+                    cell.title = `${dayLabels[dayIdx]} ${hour}:00 — ${v} logins`;
+                    heatmapContainer.appendChild(cell);
+                }
+            });
+        })();
+
+        // App Usage Chart
+        const appUsageCtx = document.getElementById('appUsageChart').getContext('2d');
+        // Collect the app usage data from the server
+        const appLabels = [
+            {% for app, count in usage_by_app.items|slice:":7" %}
+                '{{ app }}'{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        const appData = [
+            {% for app, count in usage_by_app.items|slice:":7" %}
+                {{ count }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        const appUsageChart = new Chart(appUsageCtx, {
+            type: 'bar',
+            data: {
+                labels: appLabels,
+                datasets: [{
+                    label: 'Usage Count',
+                    data: appData,
+                    backgroundColor: '#2ECC71',
+                    borderColor: '#27AE60',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Set peak usage hour and dynamic average based on hourly activity matrix
+        document.getElementById('peak-hour').textContent = metricsData.peak_usage_hour + ':00';
+        (function updatePeakHourAverage(){
+            const matrix = {{ hourly_activity.matrix|safe|default:"[]" }};
+            const peakHour = parseInt(metricsData.peak_usage_hour, 10);
+            if (!Array.isArray(matrix) || matrix.length === 0 || isNaN(peakHour)) return;
+            let sum = 0;
+            matrix.forEach(row => { sum += (row[peakHour] || 0); });
+            const avg = Math.round(sum / matrix.length);
+            const avgEl = document.getElementById('peak-hour-avg');
+            if (avgEl) avgEl.textContent = `average of ${avg} logins`;
+        })();
+        
+        // Populate MFA Methods Distribution with real data
+        const mfaMethodsLabels = [
+            {% for m, c in auth_methods.items %}
+                '{{ m }}'{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        const mfaMethodsCounts = [
+            {% for m, c in auth_methods.items %}
+                {{ c }}{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+        const mfaTotal = mfaMethodsCounts.reduce((sum, n) => sum + n, 0);
+        // Build a map for quick lookup, normalize keys to uppercase
+        const mfaCountsMap = {};
+        mfaMethodsLabels.forEach((label, i) => {
+            mfaCountsMap[(label || '').toString().toUpperCase()] = mfaMethodsCounts[i] || 0;
+        });
+        // Update each displayed gauge value based on its data-method (normalized)
+        document.querySelectorAll('[id^="mfa-gauge-value-"]').forEach((valEl) => {
+            const labelEl = valEl.parentElement.nextElementSibling;
+            const methodCode = (labelEl?.dataset?.method || '').toString().toUpperCase();
+            if (!methodCode || mfaTotal === 0) return;
+            const count = mfaCountsMap[methodCode] || 0;
+            const pct = mfaTotal ? Math.round((count / mfaTotal) * 100) : 0;
+            valEl.textContent = pct + '%';
+        });
+
+        // Render mini doughnut gauges for MFA methods
+        (function renderMfaGauges() {
+            const canvases = Array.from(document.querySelectorAll('canvas[id^="mfaGauge"]'));
+            canvases.forEach((canvas, index) => {
+                const valueEl = document.getElementById('mfa-gauge-value-' + (index + 1));
+                if (!valueEl) return;
+                const pct = parseInt((valueEl.textContent || '0').replace('%', ''), 10) || 0;
+                const ctx = canvas.getContext('2d');
+                try {
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                data: [pct, Math.max(0, 100 - pct)],
+                                backgroundColor: ['#01C853', '#E7EDF4'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            cutout: '80%',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { enabled: false }
+                            }
+                        }
+                    });
+                } catch (e) {
+                    // fail silently if chart cannot render
+                }
+            });
+        })();
+        
+        // Update success rate and trend indicators with real data
+        const authSuccessRateElement = document.getElementById('auth-success-rate');
+        const authRateTrendElement = document.getElementById('auth-rate-trend');
+        const authRateTrendIconElement = document.getElementById('auth-rate-trend-icon');
+        
+        const authRateChange = metricsData.auth_rate_change;
+        if (authRateChange > 0) {
+            authRateTrendElement.textContent = '+' + authRateChange + '%';
+            authRateTrendElement.className = 'trend-up';
+            authRateTrendIconElement.className = 'fas fa-arrow-up me-1';
+        } else if (authRateChange < 0) {
+            authRateTrendElement.textContent = authRateChange + '%';
+            authRateTrendElement.className = 'trend-down';
+            authRateTrendIconElement.className = 'fas fa-arrow-down me-1';
+        } else {
+            authRateTrendElement.textContent = authRateChange + '%';
+            authRateTrendElement.className = 'trend-neutral';
+            authRateTrendIconElement.className = 'fas fa-minus me-1';
+        }
+        
+        // Update MFA usage rate and trend indicators with real data
+        const mfaRateElement = document.getElementById('mfa-usage-rate');
+        const mfaRateTrendElement = document.getElementById('mfa-rate-trend');
+        const mfaRateTrendIconElement = document.getElementById('mfa-rate-trend-icon');
+        if (mfaRateElement) {
+            mfaRateElement.textContent = metricsData.mfa_usage_rate + '%';
+        }
+        
+        const mfaRateChange = metricsData.mfa_rate_change;
+        if (mfaRateChange > 0) {
+            mfaRateTrendElement.textContent = '+' + mfaRateChange + '%';
+            mfaRateTrendElement.className = 'trend-up';
+            mfaRateTrendIconElement.className = 'fas fa-arrow-up me-1';
+        } else if (mfaRateChange < 0) {
+            mfaRateTrendElement.textContent = mfaRateChange + '%';
+            mfaRateTrendElement.className = 'trend-down';
+            mfaRateTrendIconElement.className = 'fas fa-arrow-down me-1';
+        } else {
+            mfaRateTrendElement.textContent = mfaRateChange + '%';
+            mfaRateTrendElement.className = 'trend-neutral';
+            mfaRateTrendIconElement.className = 'fas fa-minus me-1';
+        }
+        
+        // Update session time and trend indicators with real data
+        const sessionTimeElement = document.getElementById('avg-session-time');
+        const sessionTimeTrendElement = document.getElementById('session-time-trend');
+        const sessionTimeTrendIconElement = document.getElementById('session-time-trend-icon');
+        
+        if (sessionTimeElement) {
+            sessionTimeElement.textContent = metricsData.avg_session_time + ' min';
+        }
+        const sessionTimeChange = metricsData.session_time_change;
+        if (sessionTimeChange > 0) {
+            sessionTimeTrendElement.textContent = '+' + sessionTimeChange + '%';
+            sessionTimeTrendElement.className = 'trend-up';
+            sessionTimeTrendIconElement.className = 'fas fa-arrow-up me-1';
+        } else if (sessionTimeChange < 0) {
+            sessionTimeTrendElement.textContent = sessionTimeChange + '%';
+            sessionTimeTrendElement.className = 'trend-down';
+            sessionTimeTrendIconElement.className = 'fas fa-arrow-down me-1';
+        } else {
+            sessionTimeTrendElement.textContent = sessionTimeChange + '%';
+            sessionTimeTrendElement.className = 'trend-neutral';
+            sessionTimeTrendIconElement.className = 'fas fa-minus me-1';
+        }
+
+        // Update failed logins and trend indicators with real data
+        const failedLoginsElement = document.getElementById('failed-logins-count');
+        const failedLoginsTrendElement = document.getElementById('failed-logins-trend');
+        const failedLoginsTrendIconElement = document.getElementById('failed-logins-trend-icon');
+        
+        if (failedLoginsElement) {
+            failedLoginsElement.textContent = metricsData.failed_logins_count;
+        }
+        const failedLoginsChange = metricsData.failed_logins_change;
+        // For failed logins, a negative change is actually good (fewer failures)
+        if (failedLoginsChange > 0) {
+            failedLoginsTrendElement.textContent = '+' + failedLoginsChange + '%';
+            failedLoginsTrendElement.className = 'trend-down'; // Red for increase in failures
+            failedLoginsTrendIconElement.className = 'fas fa-arrow-up me-1';
+        } else if (failedLoginsChange < 0) {
+            failedLoginsTrendElement.textContent = failedLoginsChange + '%';
+            failedLoginsTrendElement.className = 'trend-up'; // Green for decrease in failures
+            failedLoginsTrendIconElement.className = 'fas fa-arrow-down me-1';
+        } else {
+            failedLoginsTrendElement.textContent = failedLoginsChange + '%';
+            failedLoginsTrendElement.className = 'trend-neutral';
+            failedLoginsTrendIconElement.className = 'fas fa-minus me-1';
+        }
+
+        // Initialize World Map with Geographic Distribution data
+        const mapContainer = document.getElementById('worldMap');
+        if (mapContainer) {
+            // Parse geo data from Django context
+            const geoData = {{ geo_data|safe|default:"[]" }};
+
+            // Prepare markers in the format expected by jsVectorMap
+            const markers = (Array.isArray(geoData) ? geoData : [])
+                .filter(item => item.coordinates && item.coordinates.lat && item.coordinates.lon)
+                .map(item => ({
+                    name: item.country + ' (' + item.count + ' logins)',
+                    coords: [item.coordinates.lat, item.coordinates.lon]
+                }));
+
+            // Only initialize map if jsVectorMap is available
+            if (typeof jsVectorMap !== 'undefined') {
+                try {
+                    // Create map visualization
+                    new jsVectorMap({
+                        selector: '#worldMap',
+                        map: 'world',
+                        backgroundColor: 'transparent',
+                        zoomOnScroll: true,
+                        zoomButtons: true,
+                        markersSelectable: true,
+                        markers: markers,
+                        markerStyle: {
+                            initial: {
+                                r: 5,
+                                fill: '#4B77BE',
+                                stroke: '#FFFFFF',
+                                strokeWidth: 1,
+                                fillOpacity: 0.8
+                            },
+                            hover: {
+                                fill: '#1ABC9C',
+                                stroke: '#FFFFFF',
+                                cursor: 'pointer'
+                            },
+                            selected: {
+                                fill: '#FF9800'
+                            }
+                        },
+                        markerLabelStyle: {
+                            initial: {
+                                fontFamily: 'Euclid Circular A',
+                                fontSize: 12,
+                                fontWeight: 500,
+                                fill: '#35373E'
+                            }
+                        },
+                        regionStyle: {
+                            initial: {
+                                fill: '#E7EDF4',
+                                fillOpacity: 1,
+                                stroke: '#FFFFFF',
+                                strokeWidth: 0.5,
+                                strokeOpacity: 1
+                            },
+                            hover: {
+                                fill: '#CBD5E1',
+                                cursor: 'pointer'
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing map:', error);
+                    // Display error message in map container
+                    mapContainer.innerHTML = '<div class="p-3 text-center text-muted">Unable to load map visualization</div>';
+                }
+            } else {
+                console.error('jsVectorMap library not loaded');
+            }
+        }
+
+        // Equalize Geographic Distribution height to Device Usage chart
+        (function equalizeGeoHeight(){
+            var deviceCanvas = document.getElementById('deviceStatsChart');
+            var deviceContainer = deviceCanvas ? deviceCanvas.closest('.chart-container') : null;
+            var geoContainer = document.getElementById('worldMap');
+            if (!deviceContainer || !geoContainer) return;
+            var applyHeight = function(){
+                var h = deviceContainer.offsetHeight;
+                if (h && h > 0) {
+                    geoContainer.style.height = h + 'px';
+                }
+            };
+            applyHeight();
+            window.addEventListener('resize', function(){
+                applyHeight();
+            });
+        })();
+
+        // Equalize card heights: Device vs Geo, and MFA vs App
+        (function equalizeCardHeights(){
+            var deviceCard = document.getElementById('deviceCard');
+            var mapCard = document.getElementById('mapCard');
+            var mfaCard = document.getElementById('mfaCard');
+            var appCard = document.getElementById('appCard');
+
+            var pairEqualize = function(a, b){
+                if (!a || !b) return;
+                a.style.height = '';
+                b.style.height = '';
+                var maxH = Math.max(a.offsetHeight || 0, b.offsetHeight || 0);
+                if (maxH > 0) {
+                    a.style.height = maxH + 'px';
+                    b.style.height = maxH + 'px';
+                }
+            };
+
+            var apply = function(){
+                pairEqualize(deviceCard, mapCard);
+                pairEqualize(mfaCard, appCard);
+            };
+
+            apply();
+            window.addEventListener('resize', function(){
+                apply();
+            });
+        })();
+
+        // Toggle Geo lists (locations and cities) "See all" / "See less"
+        (function initGeoToggle(){
+            var btn = document.getElementById('toggleGeoBtn');
+            if (!btn) return;
+
+            var extras = Array.from(document.querySelectorAll('.geo-extra'));
+            var lists = Array.from(document.querySelectorAll('.geo-list-scroll'));
+            if (extras.length === 0) {
+                btn.style.display = 'none';
+                return;
+            }
+
+            var fallbackHeights = { collapsed: 210, expanded: 350 };
+
+            var setListHeights = function(expanded) {
+                var targetRows = expanded ? 5 : 3;
+                lists.forEach(function(list) {
+                    var items = Array.from(list.querySelectorAll('.geo-item')).slice(0, targetRows);
+                    var total = items.reduce(function(sum, item) {
+                        var rect = item.getBoundingClientRect();
+                        var h = rect.height || item.offsetHeight || 0;
+                        var style = window.getComputedStyle(item);
+                        var mt = parseFloat(style.marginTop) || 0;
+                        var mb = parseFloat(style.marginBottom) || 0;
+                        return sum + h + mt + mb;
+                    }, 0);
+                    var maxH = total > 0 ? total : (expanded ? fallbackHeights.expanded : fallbackHeights.collapsed);
+                    list.style.maxHeight = maxH + 'px';
+                    list.style.overflowY = 'auto';
+                });
+            };
+
+            var applyState = function(expanded) {
+                extras.forEach(function(el) {
+                    el.style.display = expanded ? 'flex' : 'none';
+                });
+                btn.textContent = expanded ? 'See less' : 'See all';
+                btn.setAttribute('data-expanded', expanded ? 'true' : 'false');
+                setListHeights(expanded);
+            };
+
+            applyState(false);
+
+            btn.addEventListener('click', function(){
+                var nextState = this.getAttribute('data-expanded') !== 'true';
+                applyState(nextState);
+            });
+
+            window.addEventListener('resize', function(){
+                var expanded = btn.getAttribute('data-expanded') === 'true';
+                setListHeights(expanded);
+            });
+        })();
+
+        // Toggle App Usage table rows "See all" / "See less"
+        (function initAppToggle(){
+            var btn = document.getElementById('toggleAppBtn');
+            if (!btn) return;
+            var extras = Array.from(document.querySelectorAll('.app-extra'));
+            if (extras.length === 0) {
+                btn.style.display = 'none';
+                return;
+            }
+            btn.addEventListener('click', function(){
+                var expanded = this.getAttribute('data-expanded') === 'true';
+                var nextState = !expanded;
+                extras.forEach(function(row){
+                    row.style.display = nextState ? 'table-row' : 'none';
+                });
+                this.textContent = nextState ? 'See less' : 'See all';
+                this.setAttribute('data-expanded', nextState ? 'true' : 'false');
+            });
+        })();
+    </script>
+
+    <style nonce="{{ nonce }}">
+        /* Button hover effect */
+        #expandMapBtn {
+            transition: all 0.2s;
+        }
+
+        #expandMapBtn:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.05);
+        }
+
+        /* Ensure map fills container properly */
+        .okta-map-container {
+            position: relative;
+            width: 100%;
+        }
+
+        /* Map Modal Overlay Styles */
+        .map-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .map-modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 95%;
+            height: 90%;
+            max-width: 1600px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .map-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .map-modal-header h3 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.5rem;
+        }
+
+        .map-modal-close {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .map-modal-close:hover {
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+
+        .map-modal-body {
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-modal-body .okta-map-container {
+            flex: 1;
+            height: 100%;
+        }
+
+        .map-modal-body #worldMapExpanded {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Center MFA gauge values inside their charts */
+        .metric-gauge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gauge-chart {
+            position: relative;
+            width: 110px;
+            height: 110px;
+        }
+
+        /* Stretch paired cards to equal heights */
+        #deviceCard,
+        #mapCard,
+        #mfaCard,
+        #appCard {
+            height: 100%;
+        }
+
+        /* Scrollable geo lists with JS-managed viewport */
+        .geo-list-scroll {
+            max-height: none;
+            overflow-y: hidden;
+            padding-right: 4px;
+        }
+
+        .geo-lists-section {
+            position: relative;
+            padding-bottom: 48px;
+        }
+
+        .geo-toggle-wrapper {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+        }
+
+        /* Larger Device Usage chart area */
+        #deviceChartContainer {
+            min-height: 360px;
+        }
+
+        #deviceStatsChart {
+            width: 100% !important;
+            height: 360px !important;
+        }
+
+        .gauge-chart canvas {
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+        }
+
+        .gauge-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 700;
+            color: #1f2a3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+
+    <!-- Map Expansion Modal -->
+    <div class="map-modal-overlay" id="mapModalOverlay">
+        <div class="map-modal-content">
+            <div class="map-modal-header">
+                <h3>Geographic Distribution - Interactive Map</h3>
+                <button class="map-modal-close" id="closeMapModal" title="Close">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="map-modal-body">
+                <div class="okta-map-container">
+                    <div id="worldMapExpanded" style="width: 100%; height: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script nonce="{{ nonce }}">
+        // Map Modal Functionality
+        let expandedMapInstance = null;
+
+        document.getElementById('expandMapBtn').addEventListener('click', function() {
+            const overlay = document.getElementById('mapModalOverlay');
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Initialize expanded map after a short delay to ensure container is visible
+            setTimeout(() => {
+                initializeExpandedMap();
+            }, 100);
+        });
+
+        document.getElementById('closeMapModal').addEventListener('click', closeMapModal);
+
+        // Close on overlay click (outside modal content)
+        document.getElementById('mapModalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMapModal();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const overlay = document.getElementById('mapModalOverlay');
+                if (overlay.classList.contains('active')) {
+                    closeMapModal();
+                }
+            }
+        });
+
+        function closeMapModal() {
+            const overlay = document.getElementById('mapModalOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // Destroy expanded map instance to free resources
+            if (expandedMapInstance) {
+                expandedMapInstance.destroy();
+                expandedMapInstance = null;
+            }
+        }
+
+        function initializeExpandedMap() {
+            if (expandedMapInstance) {
+                expandedMapInstance.destroy();
+            }
+
+            const geoData = {{ geo_data|safe }};
+            
+            // Prepare markers in the format expected by jsVectorMap
+            const markers = (Array.isArray(geoData) ? geoData : [])
+                .filter(item => item.coordinates && item.coordinates.lat && item.coordinates.lon)
+                .map(item => ({
+                    name: `${item.city}, ${item.country} (${item.count} logins)`,
+                    coords: [item.coordinates.lat, item.coordinates.lon]
+                }));
+
+            // Only initialize map if jsVectorMap is available
+            if (typeof jsVectorMap !== 'undefined') {
+                try {
+                    expandedMapInstance = new jsVectorMap({
+                        selector: '#worldMapExpanded',
+                        map: 'world',
+                        backgroundColor: 'transparent',
+                        zoomOnScroll: true,
+                        zoomButtons: true,
+                        markersSelectable: true,
+                        markers: markers,
+                        markerStyle: {
+                            initial: {
+                                r: 6,
+                                fill: '#4B77BE',
+                                stroke: '#FFFFFF',
+                                strokeWidth: 1,
+                                fillOpacity: 0.8
+                            },
+                            hover: {
+                                fill: '#1ABC9C',
+                                stroke: '#FFFFFF',
+                                cursor: 'pointer'
+                            },
+                            selected: {
+                                fill: '#FF9800'
+                            }
+                        },
+                        markerLabelStyle: {
+                            initial: {
+                                fontFamily: 'Euclid Circular A',
+                                fontSize: 13,
+                                fontWeight: 500,
+                                fill: '#35373E'
+                            }
+                        },
+                        regionStyle: {
+                            initial: {
+                                fill: '#E7EDF4',
+                                fillOpacity: 1,
+                                stroke: '#FFFFFF',
+                                strokeWidth: 0.5,
+                                strokeOpacity: 1
+                            },
+                            hover: {
+                                fill: '#CBD5E1',
+                                cursor: 'pointer'
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error initializing expanded map:', error);
+                }
+            } else {
+                console.error('jsVectorMap library not loaded');
+            }
+        }
+    </script>
+</body>
+</html>

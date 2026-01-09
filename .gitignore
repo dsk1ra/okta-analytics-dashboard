@@ -1,0 +1,87 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+logs/
+
+# Environment / tooling
+.env
+.venv
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/
+
+# Compiled / cache
+__pycache__/
+*.pyc
+__init__.pyc
+*.pyo
+*.pyd
+
+# Secrets / keys
+keys/
+*.pem
+*.key
+*.jwk
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Coverage / reports
+.coverage
+coverage.xml
+htmlcov/
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Documentation builds
+docs/_build/
+site/
+
+# Temporary files
+*.swp
+*.swo
+*~
+.tmp/
+
+# Database backups
+*.dump
+*.sql
+
+# Environment files (explicit)
+.env
+.env.local
+.env.*.local

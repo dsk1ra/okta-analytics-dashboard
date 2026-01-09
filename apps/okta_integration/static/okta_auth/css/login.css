@@ -1,0 +1,202 @@
+:root {
+    --primary-color: #00684A; /* MongoDB Evergreen */
+    --secondary-color: #F9FBFA; /* MongoDB Light 1 */
+    --text-color: #001E2B; /* MongoDB Dark 1 */
+    --light-text: #889392; /* MongoDB Gray 4 */
+    --accent-color: #00C853; /* MongoDB Dark Green */
+    --danger-color: #FF0000; /* MongoDB Red */
+    --success-color: #00C853; /* MongoDB Dark Green */
+    --border-radius: 6px; /* MongoDB uses slightly smaller border radius */
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* MongoDB style shadow */
+}
+
+body {
+    font-family: 'Euclid Circular A', system-ui, sans-serif; /* MongoDB font */
+    background: linear-gradient(135deg, #FFFFFF 0%, #F9FBFA 100%);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    margin: 0;
+}
+
+.login-container {
+    max-width: 450px;
+    width: 100%;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header h1 {
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+}
+
+.login-header p {
+    color: var(--light-text);
+    font-size: 1rem;
+}
+
+.card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    border: none;
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+}
+
+.card-header h2 {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border-radius: var(--border-radius);
+    padding: 0.75rem 1rem;
+    border: 1px solid #E8EDEB; /* MongoDB Light 2 */
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.1);
+}
+
+.input-group-text {
+    background-color: white;
+    padding-right: 0;
+}
+
+.input-with-icon {
+    border-left: none;
+    padding-left: 0;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover {
+    background-color: #00843A; /* MongoDB Green 700 */
+    border-color: #00843A;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 104, 74, 0.2);
+}
+
+.btn-primary:active {
+    background-color: #004D22; /* MongoDB Green 900 */
+    border-color: #004D22;
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0, 104, 74, 0.1);
+}
+
+.card-footer {
+    background-color: var(--secondary-color);
+    border-top: 1px solid #E8EDEB; /* MongoDB Light 2 */
+    color: var(--light-text);
+    padding: 1rem;
+    font-size: 0.875rem;
+}
+
+.alert-danger {
+    background-color: rgba(255, 0, 0, 0.05);
+    color: var(--danger-color);
+    border-color: rgba(255, 0, 0, 0.1);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    font-weight: 500;
+}
+
+.brand-logo {
+    margin-bottom: 1.5rem;
+    height: 48px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    color: var(--light-text);
+}
+
+.form-check-input {
+    border: 2px solid #C1C7C6; /* MongoDB Gray 3 */
+}
+
+.form-check-input:checked {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.form-check-label {
+    font-size: 0.875rem;
+    margin-left: 0.5rem;
+}
+
+.help-text {
+    font-size: 0.875rem;
+    color: var(--light-text);
+    margin-top: 1rem;
+}
+
+.help-text a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.help-text a:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+@media (max-width: 576px) {
+    .login-container {
+        padding: 0.5rem;
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
+}
+
+/* Shield icon specific styling */
+.fa-shield-alt {
+    color: var(--primary-color) !important;
+    filter: drop-shadow(0 3px 6px rgba(0, 104, 74, 0.2));
+    transition: transform 0.3s ease;
+}
+
+.fa-shield-alt:hover {
+    transform: scale(1.05);
+}

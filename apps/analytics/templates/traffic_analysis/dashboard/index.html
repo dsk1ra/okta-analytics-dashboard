@@ -1,0 +1,1152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OktaAnalytics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/euclid-circular-a.css' %}">
+    <link rel="stylesheet" href="{% static 'rest_framework/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/chart.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/dashboard.css' %}" nonce="{{ nonce }}">
+</head>
+<body>
+    <!-- Sidebar Toggle Button -->
+    <div class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/dashboard/" class="sidebar-brand">
+                Okta<span>Analytics</span>
+            </a>
+        </div>
+        
+        <div class="pt-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/dashboard/">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/events/">
+                        <i class="fas fa-list-alt"></i>
+                        <span>Events</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/alerts/">
+                        <i class="fas fa-bell"></i>
+                        <span>Alerts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/metrics/">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Metrics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/reports/">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-5">
+                    <a class="nav-link" href="/settings/">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout/">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar">
+            <h1 class="page-title">Dashboard</h1>
+            <div class="user-dropdown">
+                <div class="user-info">
+                    <div class="user-name">Admin User</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+                <div class="user-avatar">A</div>
+            </div>
+        </div>
+        
+        <!-- Stats Overview -->
+        <div class="row g-3 align-items-stretch">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                <div class="stat-card h-100">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-primary">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">TOTAL EVENTS</div>
+                            <div class="stat-value">{{ total_events|default:"0" }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up mr-1"></i> 12.5%
+                        </div>
+                        <div class="stat-period">vs. previous 30 days</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                <div class="stat-card h-100">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-success">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">LOGIN EVENTS</div>
+                            <div class="stat-value">{{ login_events|default:"0" }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up mr-1"></i> 8.3%
+                        </div>
+                        <div class="stat-period">vs. previous 30 days</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                <div class="stat-card h-100">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">FAILED LOGINS</div>
+                            <div class="stat-value">{{ failed_events|default:"0" }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend trend-down">
+                            <i class="fas fa-arrow-down mr-1"></i> 5.2%
+                        </div>
+                        <div class="stat-period">vs. previous 30 days</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                <div class="stat-card h-100">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-danger">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">SECURITY EVENTS</div>
+                            <div class="stat-value">{{ security_events|default:"0" }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend trend-neutral">
+                            <i class="fas fa-minus mr-1"></i> 0.4%
+                        </div>
+                        <div class="stat-period">vs. previous 30 days</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                <div class="stat-card h-100">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-warning">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">AVG LOGIN TIME (MS)</div>
+                            <div class="stat-value" id="avg-login-time">{{ request.session.avg_login_time.avg_ms|default:"..." }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div id="login-time-trend" class="stat-trend">
+                            <i id="login-time-trend-icon" class="fas fa-minus mr-1"></i> <span id="login-time-trend-value">--</span>
+                        </div>
+                        <div class="stat-period time-period" id="login-time-updated">
+                            <span class="time-label">Last updated</span>
+                            <span class="time-value" id="login-time-updated-value">{% if request.session.avg_login_time.timestamp %}{{ request.session.avg_login_time.timestamp|date:"H:i" }}{% else %}--:--{% endif %}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Row -->
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Event Activity</h2>
+                        <div class="filters event-activity-filters">
+                            <button class="filter-btn active" data-period="7d">7 Days</button>
+                            <button class="filter-btn" data-period="14d">14 Days</button>
+                            <button class="filter-btn" data-period="30d">30 Days</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="chart-container">
+                            <canvas id="eventActivityChart"></canvas>
+                        </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color bg-green-2"></div>
+                                <span>Successful Logins</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color bg-yellow-1"></div>
+                                <span>Failed Logins</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color bg-red-2"></div>
+                                <span>Security Events</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Event Distribution</h2>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="chart-container">
+                            <canvas id="eventDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Device and Application Statistics Row -->
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Device Usage</h2>
+                        <div class="filters">
+                            <button class="filter-btn active" data-period="30d" data-target="deviceStats">30 Days</button>
+                            <button class="filter-btn" data-period="60d" data-target="deviceStats">60 Days</button>
+                            <button class="filter-btn" data-period="90d" data-target="deviceStats">90 Days</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="chart-container">
+                            <canvas id="deviceStatsChart"></canvas>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <div id="deviceStatsLoading" class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div id="deviceStatsError" class="alert alert-danger" style="display: none;" nonce="{{ nonce }}">
+                                Error loading device statistics
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Browser Usage</h2>
+                        <div class="filters">
+                            <button class="filter-btn active" data-period="30d" data-target="browserStats">30 Days</button>
+                            <button class="filter-btn" data-period="60d" data-target="browserStats">60 Days</button>
+                            <button class="filter-btn" data-period="90d" data-target="browserStats">90 Days</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="chart-container">
+                            <canvas id="browserStatsChart"></canvas>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <div id="browserStatsLoading" class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div id="browserStatsError" class="alert alert-danger" style="display: none;" nonce="{{ nonce }}">
+                                Error loading browser statistics
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- OS and Application Statistics Row -->
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Operating System Usage</h2>
+                        <div class="filters">
+                            <button class="filter-btn active" data-period="30d" data-target="osStats">30 Days</button>
+                            <button class="filter-btn" data-period="60d" data-target="osStats">60 Days</button>
+                            <button class="filter-btn" data-period="90d" data-target="osStats">90 Days</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="chart-container">
+                            <canvas id="osStatsChart"></canvas>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <div id="osStatsLoading" class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div id="osStatsError" class="alert alert-danger" style="display: none;" nonce="{{ nonce }}">
+                                Error loading OS statistics
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Application Usage</h2>
+                        <div class="filters">
+                            <button class="filter-btn active" data-period="30d" data-target="appStats">30 Days</button>
+                            <button class="filter-btn" data-period="60d" data-target="appStats">60 Days</button>
+                            <button class="filter-btn" data-period="90d" data-target="appStats">90 Days</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="chart-container">
+                            <canvas id="appStatsChart"></canvas>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <div id="appStatsLoading" class="spinner-border text-primary" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                            <div id="appStatsError" class="alert alert-danger" style="display: none;">
+                                Error loading application statistics
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Events Table -->
+        <div class="row mt-4 mb-4">
+            <div class="col-12">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Recent Events</h2>
+                        <div class="time-filter">
+                            <button class="filter-btn" id="timeFilterButton">
+                                Last 24 Hours <i class="fas fa-chevron-down ml-2"></i>
+                            </button>
+                            <div class="time-filter-dropdown" id="timeFilterDropdown">
+                                <div class="time-filter-item active">Last 24 Hours</div>
+                                <div class="time-filter-item">Last 7 Days</div>
+                                <div class="time-filter-item">Last 30 Days</div>
+                                <div class="time-filter-item">Custom Range</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="activity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Event Type</th>
+                                        <th>User</th>
+                                        <th>Timestamp</th>
+                                        <th>IP Address</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentEventsTableBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white p-3">
+                        <a href="{% url 'traffic_analysis:events_page' %}" class="btn btn-sm btn-primary">View All Events</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log Details Section -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Security Logs</h2>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="log-container">
+                            {% if security_events > 0 %}
+                                {% for event in recent_events %}
+                                    {% if event.severity == "WARN" or event.severity == "ERROR" %}
+                                        <div class="log-item {% if event.severity == 'ERROR' %}error{% elif event.severity == 'WARN' %}warning{% else %}success{% endif %}">
+                                            <div class="log-header">
+                                                <div class="log-type">{{ event.event_type|truncatechars:30 }}</div>
+                                                <div class="log-time">{{ event.published|date:"M d, H:i" }}</div>
+                                            </div>
+                                            <div class="log-message">{{ event.display_message|default:"No message available" }}</div>
+                                            <div class="log-details">
+                                                <span><i class="fas fa-user"></i> {{ event.username|default:"Unknown" }}</span>
+                                                <span><i class="fas fa-globe"></i> {{ event.ip_address|default:"N/A" }}</span>
+                                                <span><i class="fas fa-exclamation-circle"></i> {{ event.severity|default:"INFO" }}</span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <div class="p-4 text-center">
+                                    <p class="text-muted">No security logs found</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Failed Authentication</h2>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="log-container">
+                            {% if failed_events > 0 %}
+                                {% for event in recent_events %}
+                                    {% if event.outcome.result == "FAILURE" and "authentication" in event.event_type %}
+                                        <div class="log-item error">
+                                            <div class="log-header">
+                                                <div class="log-type">{{ event.event_type|truncatechars:30 }}</div>
+                                                <div class="log-time">{{ event.published|date:"M d, H:i" }}</div>
+                                            </div>
+                                            <div class="log-message">
+                                                Authentication failed for user {{ event.username|default:"Unknown" }}
+                                                {% if event.outcome.reason %} - {{ event.outcome.reason }}{% endif %}
+                                            </div>
+                                            <div class="log-details">
+                                                <span><i class="fas fa-user"></i> {{ event.username|default:"Unknown" }}</span>
+                                                <span><i class="fas fa-globe"></i> {{ event.ip_address|default:"N/A" }}</span>
+                                                <span><i class="fas fa-clock"></i> {{ event.published|date:"H:i:s" }}</span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <div class="p-4 text-center">
+                                    <p class="text-muted">No failed authentication events</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'rest_framework/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js" nonce="{{ nonce }}"></script>
+    <script nonce="{{ nonce }}">
+        // Toggle sidebar on mobile
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+        
+        // Time filter dropdown
+        document.getElementById('timeFilterButton').addEventListener('click', function() {
+            document.getElementById('timeFilterDropdown').classList.toggle('show');
+        });
+        
+        // Close dropdowns when clicking elsewhere
+        window.addEventListener('click', function(e) {
+            if (!e.target.matches('#timeFilterButton') && !e.target.closest('#timeFilterButton')) {
+                var dropdown = document.getElementById('timeFilterDropdown');
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        });
+        
+        // Event Activity Chart (dynamic)
+        var activityCtx = document.getElementById('eventActivityChart').getContext('2d');
+        var activityChart = new Chart(activityCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Successful Logins',
+                    data: [],
+                    backgroundColor: 'rgba(1, 200, 83, 0.2)',
+                    borderColor: '#01C853',
+                    tension: 0.4,
+                    pointBackgroundColor: '#01C853',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4
+                }, {
+                    label: 'Failed Logins',
+                    data: [],
+                    backgroundColor: 'rgba(255, 202, 40, 0.2)',
+                    borderColor: '#FFCA28',
+                    tension: 0.4,
+                    pointBackgroundColor: '#FFCA28',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4
+                }, {
+                    label: 'Security Events',
+                    data: [],
+                    backgroundColor: 'rgba(219, 48, 48, 0.2)',
+                    borderColor: '#DB3030',
+                    tension: 0.4,
+                    pointBackgroundColor: '#DB3030',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                    },
+                    x: { grid: { display: false } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 30, 43, 0.8)',
+                        padding: 10,
+                        cornerRadius: 8,
+                        titleFont: { size: 14, weight: 'bold' }
+                    }
+                }
+            }
+        });
+
+        function loadEventActivity(days = 7) {
+            fetch(`/api/statistics/event-activity/?days=${days}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load event activity');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    activityChart.data.labels = data.labels;
+                    activityChart.data.datasets[0].data = data.successful;
+                    activityChart.data.datasets[1].data = data.failed;
+                    activityChart.data.datasets[2].data = data.security;
+                    activityChart.update();
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+        }
+
+        // Hook filter buttons (7d/14d/30d)
+        document.querySelectorAll('.event-activity-filters .filter-btn[data-period]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const period = this.getAttribute('data-period');
+                let days = 7;
+                if (period === '14d') days = 14;
+                if (period === '30d') days = 30;
+
+                // Update active state within this filter group
+                this.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                loadEventActivity(days);
+            });
+        });
+
+        // Initial load for 7 days
+        loadEventActivity(7);
+        
+        // Event Distribution Chart
+        var distributionCtx = document.getElementById('eventDistributionChart').getContext('2d');
+        var distributionChart = new Chart(distributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        '#01C853',
+                        '#0D6EFD',
+                        '#FFCA28',
+                        '#6E31E0',
+                        '#00BCD4',
+                        '#DB3030',
+                        '#889392'
+                    ],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 15,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 30, 43, 0.8)',
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                }
+            }
+        });
+
+        function loadEventDistribution(days = 30) {
+            fetch(`/api/statistics/event-distribution/?days=${days}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load event distribution');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    distributionChart.data.labels = data.labels;
+                    distributionChart.data.datasets[0].data = data.counts;
+                    distributionChart.update();
+                })
+                .catch(err => {
+                    console.error(err);
+                });
+        }
+
+        // Initial load for 30 days
+        loadEventDistribution(30);
+
+        // Recent Events functionality
+        let currentEventHours = 24;
+
+        function loadRecentEvents(hours = 24) {
+            currentEventHours = hours;
+            const tbody = document.getElementById('recentEventsTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div></td></tr>';
+
+            fetch(`/api/statistics/recent-events/?limit=5&hours=${hours}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load recent events');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">No recent events found</td></tr>';
+                        return;
+                    }
+
+                    let html = '';
+                    data.forEach(event => {
+                        const eventType = event.eventType.length > 25 ? event.eventType.substring(0, 22) + '...' : event.eventType;
+                        const published = new Date(event.published);
+                        const formattedDate = published.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                        const formattedTime = published.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+                        let statusBadge = '';
+                        if (event.outcome.result === 'SUCCESS') {
+                            statusBadge = '<span class="status-badge status-success">Success</span>';
+                        } else if (event.outcome.result === 'FAILURE') {
+                            statusBadge = '<span class="status-badge status-failure">Failed</span>';
+                        } else if (event.severity === 'WARN') {
+                            statusBadge = '<span class="status-badge status-warning">Warning</span>';
+                        } else {
+                            statusBadge = `<span class="status-badge status-neutral">${event.outcome.result || 'Unknown'}</span>`;
+                        }
+
+                        html += `
+                            <tr>
+                                <td><div class="event-type">${eventType}</div></td>
+                                <td>${event.username}</td>
+                                <td><div class="event-time">${formattedDate} at ${formattedTime}</div></td>
+                                <td>${event.ipAddress}</td>
+                                <td>${statusBadge}</td>
+                                <td>
+                                    <a href="{% url 'traffic_analysis:events_page' %}?uuid=${event.uuid}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                    tbody.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error(err);
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Error loading events</td></tr>';
+                });
+        }
+
+        // Time filter dropdown for recent events
+        const timeFilterButton = document.getElementById('timeFilterButton');
+        const timeFilterDropdown = document.getElementById('timeFilterDropdown');
+        const timeFilterItems = document.querySelectorAll('.time-filter-item');
+
+        timeFilterButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            timeFilterDropdown.classList.toggle('show');
+        });
+
+        timeFilterItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all items
+                timeFilterItems.forEach(i => i.classList.remove('active'));
+                // Add active to clicked item
+                this.classList.add('active');
+
+                // Update button text
+                const text = this.textContent.trim();
+                timeFilterButton.innerHTML = text + ' <i class="fas fa-chevron-down ml-2"></i>';
+
+                // Map text to hours
+                let hours = 24;
+                if (text === 'Last 7 Days') hours = 168;
+                else if (text === 'Last 30 Days') hours = 720;
+                else if (text === 'Custom Range') {
+                    // For now, default to 30 days for custom range
+                    hours = 720;
+                }
+
+                // Load events with new filter
+                loadRecentEvents(hours);
+
+                // Close dropdown
+                timeFilterDropdown.classList.remove('show');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!timeFilterButton.contains(e.target) && !timeFilterDropdown.contains(e.target)) {
+                timeFilterDropdown.classList.remove('show');
+            }
+        });
+
+        // Initial load for recent events (24 hours)
+        loadRecentEvents(24);
+
+        // Device Statistics Chart
+        var deviceCtx = document.getElementById('deviceStatsChart').getContext('2d');
+        var deviceChart = null;
+        
+        // Browser Statistics Chart
+        var browserCtx = document.getElementById('browserStatsChart').getContext('2d');
+        var browserChart = null;
+        
+        // OS Statistics Chart
+        var osCtx = document.getElementById('osStatsChart').getContext('2d');
+        var osChart = null;
+        
+        // Application Statistics Chart
+        var appCtx = document.getElementById('appStatsChart').getContext('2d');
+        var appChart = null;
+        
+        // Color palettes for charts
+        const colorPalettes = {
+            devices: ['#4B77BE', '#1ABC9C', '#F39C12', '#9B59B6', '#E74C3C', '#34495E', '#95A5A6'],
+            browsers: ['#E74C3C', '#3498DB', '#F1C40F', '#1ABC9C', '#9B59B6', '#34495E', '#95A5A6'],
+            os: ['#3498DB', '#2ECC71', '#E74C3C', '#F39C12', '#9B59B6', '#34495E', '#95A5A6'],
+            apps: ['#2ECC71', '#9B59B6', '#F39C12', '#E74C3C', '#3498DB', '#34495E', '#95A5A6']
+        };
+        
+        // Function to create or update a pie/doughnut chart
+        function createOrUpdateChart(chart, chartContext, labels, data, type, title, colorPalette) {
+            const chartData = {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colorPalette.slice(0, labels.length),
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            };
+            
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            padding: 15,
+                            font: {
+                                size: 11
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: title,
+                        font: {
+                            size: 16
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 30, 43, 0.8)',
+                        padding: 10,
+                        cornerRadius: 8
+                    }
+                }
+            };
+            
+            if (chart) {
+                chart.data = chartData;
+                chart.options = chartOptions;
+                chart.update();
+                return chart;
+            } else {
+                return new Chart(chartContext, {
+                    type: type,
+                    data: chartData,
+                    options: chartOptions
+                });
+            }
+        }
+        
+        // Function to load device statistics
+        function loadDeviceStats(days = 30) {
+            document.getElementById('deviceStatsLoading').style.display = 'inline-block';
+            document.getElementById('deviceStatsError').style.display = 'none';
+            
+            fetch(`/api/statistics/devices/?days=${days}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('deviceStatsLoading').style.display = 'none';
+                    
+                    // Extract labels and data
+                    const labels = Object.keys(data.devices);
+                    const values = Object.values(data.devices);
+                    
+                    // Create or update chart
+                    deviceChart = createOrUpdateChart(
+                        deviceChart, 
+                        deviceCtx, 
+                        labels, 
+                        values, 
+                        'doughnut', 
+                        `Device Usage (${days} days)`,
+                        colorPalettes.devices
+                    );
+                })
+                .catch(error => {
+                    console.error('Error loading device statistics:', error);
+                    document.getElementById('deviceStatsLoading').style.display = 'none';
+                    document.getElementById('deviceStatsError').style.display = 'block';
+                });
+        }
+        
+        // Function to load browser statistics
+        function loadBrowserStats(days = 30) {
+            document.getElementById('browserStatsLoading').style.display = 'inline-block';
+            document.getElementById('browserStatsError').style.display = 'none';
+            
+            fetch(`/api/statistics/browsers/?days=${days}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('browserStatsLoading').style.display = 'none';
+                    
+                    // Extract labels and data
+                    const labels = Object.keys(data.browsers);
+                    const values = Object.values(data.browsers);
+                    
+                    // Create or update chart
+                    browserChart = createOrUpdateChart(
+                        browserChart, 
+                        browserCtx, 
+                        labels, 
+                        values, 
+                        'pie', 
+                        `Browser Usage (${days} days)`,
+                        colorPalettes.browsers
+                    );
+                })
+                .catch(error => {
+                    console.error('Error loading browser statistics:', error);
+                    document.getElementById('browserStatsLoading').style.display = 'none';
+                    document.getElementById('browserStatsError').style.display = 'block';
+                });
+        }
+        
+        // Function to load OS statistics
+        function loadOSStats(days = 30) {
+            document.getElementById('osStatsLoading').style.display = 'inline-block';
+            document.getElementById('osStatsError').style.display = 'none';
+            
+            fetch(`/api/statistics/operating-systems/?days=${days}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('osStatsLoading').style.display = 'none';
+                    
+                    // Extract labels and data
+                    const labels = Object.keys(data.operating_systems);
+                    const values = Object.values(data.operating_systems);
+                    
+                    // Create or update chart
+                    osChart = createOrUpdateChart(
+                        osChart, 
+                        osCtx, 
+                        labels, 
+                        values, 
+                        'pie', 
+                        `OS Usage (${days} days)`,
+                        colorPalettes.os
+                    );
+                })
+                .catch(error => {
+                    console.error('Error loading OS statistics:', error);
+                    document.getElementById('osStatsLoading').style.display = 'none';
+                    document.getElementById('osStatsError').style.display = 'block';
+                });
+        }
+        
+        // Function to load application statistics
+        function loadAppStats(days = 30) {
+            document.getElementById('appStatsLoading').style.display = 'inline-block';
+            document.getElementById('appStatsError').style.display = 'none';
+            
+            fetch(`/api/statistics/applications/?days=${days}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('appStatsLoading').style.display = 'none';
+                    
+                    // Extract labels and data
+                    const labels = Object.keys(data.applications);
+                    const values = Object.values(data.applications);
+                    
+                    // Create or update chart
+                    appChart = createOrUpdateChart(
+                        appChart, 
+                        appCtx, 
+                        labels, 
+                        values, 
+                        'doughnut', 
+                        `Application Usage (${days} days)`,
+                        colorPalettes.apps
+                    );
+                })
+                .catch(error => {
+                    console.error('Error loading application statistics:', error);
+                    document.getElementById('appStatsLoading').style.display = 'none';
+                    document.getElementById('appStatsError').style.display = 'block';
+                });
+        }
+        
+        // Period filter buttons
+        document.querySelectorAll('.filter-btn[data-period]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const target = this.getAttribute('data-target');
+                if (!target) return;
+                
+                const buttonGroup = document.querySelectorAll(`.filter-btn[data-target="${target}"]`);
+                
+                // Remove active class from all buttons in the same group
+                buttonGroup.forEach(function(btn) {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Get the period value
+                const period = this.getAttribute('data-period');
+                const days = parseInt(period.replace('d', ''));
+                
+                // Update the appropriate chart based on the target
+                if (target === 'deviceStats') {
+                    loadDeviceStats(days);
+                } else if (target === 'browserStats') {
+                    loadBrowserStats(days);
+                } else if (target === 'osStats') {
+                    loadOSStats(days);
+                } else if (target === 'appStats') {
+                    loadAppStats(days);
+                }
+            });
+        });
+        
+        function generateRandomData(count) {
+            var data = [];
+            for (var i = 0; i < count; i++) {
+                data.push(Math.floor(Math.random() * 80) + 10);
+            }
+            return data;
+        }
+        
+        // Time filter items
+        document.querySelectorAll('.time-filter-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                // Remove active class from all items
+                document.querySelectorAll('.time-filter-item').forEach(function(itm) {
+                    itm.classList.remove('active');
+                });
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Update button text
+                document.getElementById('timeFilterButton').innerHTML = this.textContent + ' <i class="fas fa-chevron-down ml-2"></i>';
+                
+                // Close dropdown
+                document.getElementById('timeFilterDropdown').classList.remove('show');
+            });
+        });
+        
+        // Average Login Time Refresh functionality
+        function fetchAvgLoginTime() {
+            fetch('/api/login-timing/avg/cached/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update the average login time display (unit already in label)
+                    document.getElementById('avg-login-time').textContent = data.avg_ms.toFixed(2);
+                    
+                    // Format and display the last updated time
+                    const lastUpdateDate = new Date(data.timestamp);
+                    const hours = String(lastUpdateDate.getHours()).padStart(2, '0');
+                    const minutes = String(lastUpdateDate.getMinutes()).padStart(2, '0');
+                    var updatedValue = document.getElementById('login-time-updated-value');
+                    if (updatedValue) {
+                        updatedValue.textContent = hours + ':' + minutes;
+                    }
+
+                    // Update the trend value and icon
+                    const trendValue = data.trend_value.toFixed(1) + '%';
+                    const trendIcon = document.getElementById('login-time-trend-icon');
+                    const trendElement = document.getElementById('login-time-trend-value');
+                    trendElement.textContent = trendValue;
+
+                    if (data.trend_value > 0) {
+                        trendIcon.className = 'fas fa-arrow-up mr-1';
+                        trendElement.className = 'trend-up';
+                    } else if (data.trend_value < 0) {
+                        trendIcon.className = 'fas fa-arrow-down mr-1';
+                        trendElement.className = 'trend-down';
+                    } else {
+                        trendIcon.className = 'fas fa-minus mr-1';
+                        trendElement.className = 'trend-neutral';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching average login time:', error);
+                });
+        }
+
+        // Set up automatic refresh every 10 minutes (600000 ms)
+        setInterval(fetchAvgLoginTime, 600000);
+
+        // Initial fetch after page load
+        setTimeout(fetchAvgLoginTime, 1000);
+
+        // Manual refresh button event listener (guard in case element is missing)
+        (function initLoginTimeRefresh(){
+            var refreshBtn = document.getElementById('refresh-login-time');
+            if (!refreshBtn) return;
+            refreshBtn.addEventListener('click', function() {
+                var icon = this.querySelector('i');
+                if (icon) icon.classList.add('fa-spin');
+                fetchAvgLoginTime();
+                setTimeout(() => {
+                    if (icon) icon.classList.remove('fa-spin');
+                }, 1000);
+            });
+        })();
+        
+        // Load all statistics charts on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDeviceStats(30);
+            loadBrowserStats(30);
+            loadOSStats(30);
+            loadAppStats(30);
+        });
+    </script>
+
+    <style>
+        .time-period {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .time-period .time-value {
+            min-width: 48px;
+            text-align: left;
+            display: inline-block;
+        }
+    </style>
+</body>
+</html>

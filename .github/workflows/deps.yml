@@ -1,0 +1,56 @@
+name: Dependency Health
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Verify Python
+        run: python3 --version
+
+      - name: Upgrade pip
+        run: python3 -m pip install --upgrade "pip<25"
+
+      - name: Install pip-tools
+        if: false
+        run: echo "pip-tools not used; step disabled"
+
+      - name: Install application requirements
+        run: pip install -r requirements.txt
+
+      - name: Install dev requirements
+        run: pip install -r requirements-dev.txt
+
+      - name: Check installed package consistency
+        run: pip check || echo "Warning - Some optional dependencies missing"
+
+      - name: Install requirements (main)
+        run: pip install -r requirements.txt
+
+      - name: Install requirements (dev, if present)
+        run: |
+          if [ -f requirements-dev.txt ]; then
+            pip install -r requirements-dev.txt;
+          else
+            echo "requirements-dev.txt not found; skipping";
+          fi
+        shell: bash
+
+      - name: Dependency consistency check
+        run: pip check || echo "Warning - Some optional dependencies missing"

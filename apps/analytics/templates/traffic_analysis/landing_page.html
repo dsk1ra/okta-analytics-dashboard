@@ -1,0 +1,968 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okta Analytics Dashboard</title>
+    <!-- Fonts: MongoDB uses Euclid Circular A -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Euclid+Circular+A:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Modern CSS frameworks -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Animation library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style nonce="{{ nonce }}">
+        :root {
+            /* MongoDB color palette */
+            --mongodb-green: #00ED64;
+            --mongodb-dark-green: #00C853;
+            --mongodb-evergreen: #00684A;
+            --mongodb-dark-1: #001E2B;
+            --mongodb-dark-2: #0C2E3C;
+            --mongodb-light-1: #F9FBFA;
+            --mongodb-light-2: #E8EDEB;
+            --mongodb-gray-3: #C1C7C6;
+            --mongodb-gray-4: #889392;
+            --mongodb-yellow: #FFDD00;
+            --mongodb-red: #FF0000;
+            --mongodb-orange: #ED7E21;
+            --mongodb-blue: #0D6EFD;
+        }
+        
+        body {
+            font-family: 'Euclid Circular A', system-ui, sans-serif;
+            background-color: var(--mongodb-light-1);
+            color: var(--mongodb-dark-1);
+            line-height: 1.6;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        
+        /* Modern navbar with MongoDB style */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            padding: 14px 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--mongodb-dark-1);
+            font-size: 1.5rem;
+        }
+        
+        .navbar-brand span {
+            color: var(--mongodb-evergreen);
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            color: var(--mongodb-dark-1) !important;
+            margin: 0 10px;
+            padding: 8px 0;
+            position: relative;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--mongodb-evergreen);
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover:after {
+            width: 100%;
+        }
+        
+        /* MongoDB style buttons */
+        .btn-mongodb {
+            background-color: var(--mongodb-evergreen);
+            border-color: var(--mongodb-evergreen);
+            color: white;
+            border-radius: 6px;
+            font-weight: 500;
+            padding: 10px 24px;
+            box-shadow: 0 3px 5px rgba(0, 104, 74, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-mongodb:hover {
+            background-color: var(--mongodb-dark-green);
+            border-color: var(--mongodb-dark-green);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 104, 74, 0.2);
+        }
+        
+        .btn-mongodb-outline {
+            background-color: transparent;
+            border-color: var(--mongodb-evergreen);
+            color: var(--mongodb-evergreen);
+            border-radius: 6px;
+            font-weight: 500;
+            padding: 10px 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-mongodb-outline:hover {
+            background-color: var(--mongodb-evergreen);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 104, 74, 0.1);
+        }
+        
+        /* Modern hero section */
+        .hero-section {
+            background: linear-gradient(135deg, #FFFFFF 0%, var(--mongodb-light-1) 100%);
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-bg-shape {
+            position: absolute;
+            right: -10%;
+            top: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 104, 74, 0.08) 0%, rgba(0, 104, 74, 0.03) 50%, transparent 70%);
+            border-radius: 50%;
+            z-index: 0;
+        }
+        
+        .hero-title {
+            font-weight: 700;
+            font-size: 3.5rem;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--mongodb-dark-1);
+            letter-spacing: -0.02em;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--mongodb-gray-4);
+            margin-bottom: 30px;
+        }
+        
+        .hero-image-container {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-image {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 30, 43, 0.15);
+            transform: perspective(1200px) rotateY(-5deg) rotateX(5deg);
+            transition: all 0.5s ease;
+        }
+        
+        .hero-image:hover {
+            transform: perspective(1200px) rotateY(0deg) rotateX(0deg);
+        }
+        
+        /* Feature cards with MongoDB style */
+        .features-section {
+            padding: 80px 0;
+        }
+        
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--mongodb-dark-1);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: var(--mongodb-gray-4);
+            max-width: 700px;
+            margin: 0 auto 60px;
+            font-size: 1.1rem;
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 40px 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+            transition: all 0.4s ease;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--mongodb-light-2);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 104, 74, 0.1);
+            border-color: var(--mongodb-evergreen);
+        }
+        
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 0;
+            background: linear-gradient(to bottom, var(--mongodb-evergreen), var(--mongodb-dark-green));
+            transition: height 0.4s ease;
+        }
+        
+        .feature-card:hover::after {
+            height: 100%;
+        }
+        
+        .feature-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            height: 70px;
+            border-radius: 14px;
+            background-color: rgba(0, 104, 74, 0.07);
+            margin-bottom: 25px;
+        }
+        
+        .feature-icon i {
+            font-size: 28px;
+            color: var(--mongodb-evergreen);
+        }
+        
+        .feature-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--mongodb-dark-1);
+        }
+        
+        .feature-text {
+            color: var(--mongodb-gray-4);
+            margin-bottom: 20px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        /* Stats section with animated counters */
+        .stats-section {
+            background-color: white;
+            padding: 80px 0;
+            border-top: 1px solid var(--mongodb-light-2);
+            border-bottom: 1px solid var(--mongodb-light-2);
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 20px 15px;
+        }
+        
+        .stat-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--mongodb-evergreen);
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-weight: 500;
+            color: var(--mongodb-gray-4);
+            font-size: 1.1rem;
+        }
+        
+        /* How it works section */
+        .how-it-works {
+            padding: 100px 0;
+            background: linear-gradient(180deg, white 0%, var(--mongodb-light-1) 100%);
+        }
+        
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background-color: var(--mongodb-light-2);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+        }
+        
+        .timeline-item {
+            padding: 15px 30px;
+            position: relative;
+            width: 50%;
+            margin-bottom: 40px;
+        }
+        
+        .timeline-item:nth-child(odd) {
+            left: 0;
+        }
+        
+        .timeline-item:nth-child(even) {
+            left: 50%;
+        }
+        
+        .timeline-content {
+            padding: 30px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            position: relative;
+            border: 1px solid var(--mongodb-light-2);
+        }
+        
+        .timeline-number {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--mongodb-evergreen);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            z-index: 1;
+            top: 20px;
+        }
+        
+        .timeline-item:nth-child(odd) .timeline-number {
+            right: -20px;
+        }
+        
+        .timeline-item:nth-child(even) .timeline-number {
+            left: -20px;
+        }
+        
+        /* Testimonial section */
+        .testimonials {
+            padding: 80px 0;
+            background-color: white;
+        }
+        
+        .testimonial-card {
+            background-color: var(--mongodb-light-1);
+            border-radius: 12px;
+            padding: 40px;
+            margin: 20px 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+        
+        .testimonial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+        }
+        
+        .testimonial-text {
+            font-size: 1.1rem;
+            color: var(--mongodb-dark-1);
+            margin-bottom: 25px;
+            font-style: italic;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .author-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin-right: 20px;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .author-info h4 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--mongodb-dark-1);
+        }
+        
+        .author-info p {
+            color: var(--mongodb-gray-4);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        /* CTA section */
+        .cta-section {
+            padding: 100px 0;
+            background: linear-gradient(135deg, var(--mongodb-dark-2) 0%, var(--mongodb-dark-1) 100%);
+            color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 237, 100, 0.1) 0%, transparent 70%);
+            top: -50px;
+            left: -50px;
+            border-radius: 50%;
+        }
+        
+        .cta-section::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 237, 100, 0.08) 0%, transparent 70%);
+            bottom: -100px;
+            right: -100px;
+            border-radius: 50%;
+        }
+        
+        .cta-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .cta-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: linear-gradient(to right, var(--mongodb-dark-green), var(--mongodb-evergreen));
+            border: none;
+            box-shadow: 0 8px 15px rgba(0, 104, 74, 0.3);
+        }
+        
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(0, 104, 74, 0.4);
+        }
+        
+        /* Modern footer */
+        footer {
+            background-color: white;
+            padding: 80px 0 40px;
+            color: var(--mongodb-dark-1);
+        }
+        
+        .footer-logo {
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            display: block;
+            color: var(--mongodb-dark-1);
+            text-decoration: none;
+        }
+        
+        .footer-logo:hover {
+            color: var(--mongodb-dark-1);
+        }
+        
+        .footer-logo span {
+            color: var(--mongodb-evergreen);
+        }
+        
+        .footer-text {
+            color: var(--mongodb-gray-4);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .footer-heading {
+            font-weight: 600;
+            margin-bottom: 25px;
+            font-size: 1.3rem;
+            color: var(--mongodb-dark-1);
+        }
+        
+        .footer-links ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .footer-links ul li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links ul li a {
+            color: var(--mongodb-gray-4);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: inline-block;
+        }
+        
+        .footer-links ul li a:hover {
+            color: var(--mongodb-evergreen);
+            transform: translateX(3px);
+        }
+        
+        .social-links {
+            margin-top: 20px;
+        }
+        
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--mongodb-light-1);
+            color: var(--mongodb-dark-1);
+            margin-right: 12px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .social-icon:hover {
+            background-color: var(--mongodb-evergreen);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid var(--mongodb-light-2);
+            font-size: 0.95rem;
+            color: var(--mongodb-gray-4);
+        }
+        
+        /* Responsive fixes */
+        @media (max-width: 991px) {
+            .hero-title {
+                font-size: 2.8rem;
+            }
+            
+            .section-title {
+                font-size: 2.2rem;
+            }
+            
+            .timeline::before {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-item:nth-child(even) {
+                left: 0;
+            }
+            
+            .timeline-item:nth-child(odd) .timeline-number,
+            .timeline-item:nth-child(even) .timeline-number {
+                left: 10px;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .hero-section {
+                padding: 100px 0 50px;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-image {
+                margin-top: 40px;
+                transform: none;
+            }
+            
+            .feature-card {
+                margin-bottom: 30px;
+            }
+            
+            .cta-title {
+                font-size: 2.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Modern navigation with transparent background on hero -->
+    <nav class="navbar navbar-expand-lg fixed-top bg-white" x-data="{ open: false }">
+        <div class="container">
+            <a class="navbar-brand" href="/">Okta<span>Analytics</span></a>
+            <button class="navbar-toggler border-0" type="button" @click="open = !open">
+                <i class="fas" :class="open ? 'fa-times' : 'fa-bars'"></i>
+            </button>
+            <div class="collapse navbar-collapse" :class="{ 'show': open }">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#how-it-works">How It Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#testimonials">Testimonials</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-mongodb ms-2" href="/login/">Log In</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero section with modern design -->
+    <section class="hero-section" id="home">
+        <div class="hero-bg-shape"></div>
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6" data-aos="fade-right" data-aos-duration="1000">
+                    <h1 class="hero-title">Modern Okta Analytics Platform</h1>
+                    <p class="hero-subtitle">Gain actionable insights from your Okta identity data with our powerful visualization dashboard and security analytics.</p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <a href="/login/" class="btn btn-mongodb btn-lg">Get Started</a>
+                        <a href="#how-it-works" class="btn btn-mongodb-outline btn-lg">Learn How</a>
+                    </div>
+                </div>
+                <div class="col-lg-6" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="200">
+                    <div class="hero-image-container">
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80" alt="Dashboard Preview" class="hero-image img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features section with MongoDB style cards -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">Powerful Analytics Features</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Our platform provides comprehensive visibility into your Okta environment with easy-to-use tools and insightful analytics.
+            </p>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="feature-title">Event Analysis</h3>
+                        <p class="feature-text">Track and analyze authentication events, application access patterns, and user activity with intuitive visualizations and filtering options.</p>
+                        <a href="/login/" class="btn btn-mongodb-outline btn-sm">Learn more</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h3 class="feature-title">User Insights</h3>
+                        <p class="feature-text">Gain actionable visibility into user behavior, risk scores, authentication methods, and access patterns across your organization.</p>
+                        <a href="/login/" class="btn btn-mongodb-outline btn-sm">Learn more</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Security Monitoring</h3>
+                        <p class="feature-text">Detect suspicious activities, failed login attempts, and potential security threats in real-time with configurable alerts and notifications.</p>
+                        <a href="/login/" class="btn btn-mongodb-outline btn-sm">Learn more</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="500">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Custom Dashboards</h3>
+                        <p class="feature-text">Build personalized dashboards with drag-and-drop widgets to monitor the metrics that matter most to your organization's security posture.</p>
+                        <a href="/login/" class="btn btn-mongodb-outline btn-sm">Learn more</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="600">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-file-export"></i>
+                        </div>
+                        <h3 class="feature-title">Export & Reporting</h3>
+                        <p class="feature-text">Generate comprehensive reports and export data in various formats for compliance audits, executive summaries, and integration with other tools.</p>
+                        <a href="/login/" class="btn btn-mongodb-outline btn-sm">Learn more</a>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="700">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h3 class="feature-title">Alert System</h3>
+                        <p class="feature-text">Set up custom alert rules based on specific events, thresholds, or anomalies to be notified immediately about potential security incidents.</p>
+                        <a href="/login/" class="btn btn-mongodb-outline btn-sm">Learn more</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats section with animated counters -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3 col-6 mb-4" data-aos="fade-up">
+                    <div class="stat-card">
+                        <div class="stat-value" x-data="{ shown: false, count: 0 }" x-intersect="shown = true; $el.innerText = '0%'; let start = 0; const end = 99.9; const duration = 2000; const step = end / (duration / 16); const handle = setInterval(() => { start += step; if (start > end) { start = end; clearInterval(handle); } $el.innerText = start.toFixed(1) + '%'; }, 16);">99.9%</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-card">
+                        <div class="stat-value" x-data="{ shown: false, count: 0 }" x-intersect="shown = true; $el.innerText = '0M+'; let start = 0; const end = 100; const duration = 2000; const step = end / (duration / 16); const handle = setInterval(() => { start += step; if (start > end) { start = end; clearInterval(handle); } $el.innerText = Math.floor(start) + 'M+'; }, 16);">100M+</div>
+                        <div class="stat-label">Events Analyzed</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-card">
+                        <div class="stat-value" x-data="{ shown: false, count: 0 }" x-intersect="shown = true; $el.innerText = '0+'; let start = 0; const end = 500; const duration = 2000; const step = end / (duration / 16); const handle = setInterval(() => { start += step; if (start > end) { start = end; clearInterval(handle); } $el.innerText = Math.floor(start) + '+'; }, 16);">500+</div>
+                        <div class="stat-label">Organizations</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-card">
+                        <div class="stat-value">24/7</div>
+                        <div class="stat-label">Monitoring</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it Works section with timeline -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">How It Works</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Our platform seamlessly integrates with your Okta environment to provide valuable insights in just a few steps.
+            </p>
+
+            <div class="timeline">
+                <div class="timeline-item" data-aos="fade-right">
+                    <div class="timeline-content">
+                        <div class="timeline-number">1</div>
+                        <h3 class="feature-title">Connect Your Account</h3>
+                        <p class="feature-text">Link your Okta tenant to our platform using secure OAuth 2.0 authentication with limited read-only access to your event data.</p>
+                    </div>
+                </div>
+                <div class="timeline-item" data-aos="fade-left">
+                    <div class="timeline-content">
+                        <div class="timeline-number">2</div>
+                        <h3 class="feature-title">Data Processing</h3>
+                        <p class="feature-text">Our system collects and processes your Okta event data, organizing it for efficient analysis while maintaining strict data privacy.</p>
+                    </div>
+                </div>
+                <div class="timeline-item" data-aos="fade-right">
+                    <div class="timeline-content">
+                        <div class="timeline-number">3</div>
+                        <h3 class="feature-title">Visualization Creation</h3>
+                        <p class="feature-text">Access pre-built dashboards or create custom visualizations tailored to your organization's specific security and compliance needs.</p>
+                    </div>
+                </div>
+                <div class="timeline-item" data-aos="fade-left">
+                    <div class="timeline-content">
+                        <div class="timeline-number">4</div>
+                        <h3 class="feature-title">Actionable Insights</h3>
+                        <p class="feature-text">Receive alerts, analyze trends, and export reports to make data-driven decisions about your identity security posture.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials section -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">What Our Customers Say</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Organizations worldwide trust our platform to provide critical insights into their Okta environments.
+            </p>
+
+            <div class="row">
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"OktaAnalytics has transformed how we monitor our identity security. The insights we've gained have directly contributed to our enhanced security posture."</p>
+                        <div class="testimonial-author">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="John Smith" class="author-image">
+                            <div class="author-info">
+                                <h4>John Smith</h4>
+                                <p>CISO, Enterprise Corp</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"The dashboard is incredibly intuitive and provides real-time visibility into our authentication events. We've detected and resolved several suspicious activities thanks to this platform."</p>
+                        <div class="testimonial-author">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Sarah Johnson" class="author-image">
+                            <div class="author-info">
+                                <h4>Sarah Johnson</h4>
+                                <p>Security Analyst, Tech Solutions</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                    <div class="testimonial-card">
+                        <p class="testimonial-text">"Compliance reporting used to take days. With OktaAnalytics, we can generate comprehensive reports in minutes. The custom dashboards have been a game-changer for us."</p>
+                        <div class="testimonial-author">
+                            <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="Michael Chen" class="author-image">
+                            <div class="author-info">
+                                <h4>Michael Chen</h4>
+                                <p>Compliance Manager, FinTech Inc</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center" data-aos="fade-up">
+                    <h2 class="cta-title">Ready to transform your Okta analytics?</h2>
+                    <p class="cta-subtitle">Get started today and gain valuable insights from your identity data. Our platform helps you make informed security decisions based on comprehensive analytics.</p>
+                    <a href="/login/" class="btn btn-mongodb btn-lg cta-btn">Get Started Now</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modern footer with MongoDB style -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-5">
+                    <a href="/" class="footer-logo">Okta<span>Analytics</span></a>
+                    <p class="footer-text">A comprehensive analytics platform for monitoring and securing your Okta environment with powerful visualizations and real-time insights.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-slack"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6 mb-4 footer-links">
+                    <h5 class="footer-heading">Product</h5>
+                    <ul>
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Security</a></li>
+                        <li><a href="#">Enterprise</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Demo</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6 mb-4 footer-links">
+                    <h5 class="footer-heading">Resources</h5>
+                    <ul>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">API Reference</a></li>
+                        <li><a href="#">Support</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6 mb-4 footer-links">
+                    <h5 class="footer-heading">Company</h5>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Partners</a></li>
+                        <li><a href="#">News</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 col-6 mb-4 footer-links">
+                    <h5 class="footer-heading">Legal</h5>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                        <li><a href="#">GDPR</a></li>
+                        <li><a href="#">Compliance</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center copyright">
+                    <p>&copy; 2025 OktaAnalytics. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modern JS libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js" defer></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script nonce="{{ nonce }}">
+        // Initialize AOS animation library
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true
+            });
+            
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

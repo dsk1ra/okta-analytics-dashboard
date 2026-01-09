@@ -1,0 +1,304 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alert Details - Security Alert Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Euclid+Circular+A:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'rest_framework/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/dashboard.css' %}" nonce="{{ nonce }}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/shared.css' %}" nonce="{{ nonce }}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/alerts.css' %}" nonce="{{ nonce }}">
+</head>
+<body>
+    <!-- Sidebar Toggle Button -->
+    <div class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/dashboard/" class="sidebar-brand">
+                Okta<span>Analytics</span>
+            </a>
+        </div>
+        
+        <div class="pt-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/events/">
+                        <i class="fas fa-list-alt"></i>
+                        <span>Events</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/alerts/">
+                        <i class="fas fa-bell"></i>
+                        <span>Alerts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/metrics/">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Metrics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/reports/">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-5">
+                    <a class="nav-link" href="/settings/">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout/">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div>
+                <h1 class="page-title">Alert Details</h1>
+                <p class="page-description">View and manage detailed information about this security alert.</p>
+            </div>
+            <div class="user-dropdown">
+                <div class="user-info">
+                    <div class="user-name">Admin User</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+                <div class="user-avatar">A</div>
+            </div>
+        </div>
+
+        <!-- Back button -->
+        <div class="mb-3">
+            <a href="/alerts/" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Alerts
+            </a>
+        </div>
+
+        <!-- Alert Detail Card -->
+        <div class="content-card" id="alert-detail-container">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'rest_framework/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+    <script nonce="{{ nonce }}">
+        // Get alert ID from URL
+        const alertId = new URLSearchParams(window.location.search).get('alert_id');
+        
+        if (!alertId) {
+            document.getElementById('alert-detail-container').innerHTML = 
+                '<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> No alert ID provided.</div>';
+        } else {
+            // Fetch alert details
+            fetch(`/api/alerts/${alertId}/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(alert => {
+                    renderAlertDetail(alert);
+                })
+                .catch(error => {
+                    console.error('Error fetching alert:', error);
+                    document.getElementById('alert-detail-container').innerHTML = 
+                        `<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Failed to load alert details: ${error.message}</div>`;
+                });
+        }
+        
+        function renderAlertDetail(alert) {
+            const severityClass = `severity-${alert.severity}`;
+            const statusClass = `status-${alert.status}`;
+            
+            const html = `
+                <div class="alert-header">
+                    <div class="alert-title">
+                        <div>
+                            ${getSeverityIcon(alert.severity)}
+                        </div>
+                        <div class="alert-title-text">
+                            <h3>${escapeHtml(alert.event_type)}</h3>
+                        </div>
+                    </div>
+                    <span class="alert-severity ${severityClass}">${escapeHtml(alert.severity.toUpperCase())}</span>
+                </div>
+                
+                <div class="alert-message">
+                    ${alert.message ? escapeHtml(alert.message) : 'No message provided'}
+                </div>
+                
+                <div class="alert-details">
+                    <span><i class="fas fa-user"></i> <strong>User:</strong> ${escapeHtml(alert.username || 'N/A')}</span>
+                    <span><i class="fas fa-globe"></i> <strong>IP:</strong> ${escapeHtml(alert.ip_address || 'N/A')}</span>
+                    <span><i class="fas fa-calendar-alt"></i> <strong>Time:</strong> ${formatDate(alert.timestamp)}</span>
+                </div>
+                
+                <div style="margin: 16px 0; padding: 16px; background-color: #F9FAFB; border-radius: 8px;">
+                    <h4 style="margin-bottom: 12px; font-size: var(--font-size-lg);">Additional Details</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                        ${alert.user_id ? `<div><strong>User ID:</strong> ${escapeHtml(alert.user_id)}</div>` : ''}
+                        ${alert.resource ? `<div><strong>Resource:</strong> ${escapeHtml(alert.resource)}</div>` : ''}
+                        ${alert.action ? `<div><strong>Action:</strong> ${escapeHtml(alert.action)}</div>` : ''}
+                        ${alert.session_id ? `<div><strong>Session ID:</strong> ${escapeHtml(alert.session_id)}</div>` : ''}
+                        ${alert.user_agent ? `<div><strong>User Agent:</strong> ${escapeHtml(alert.user_agent)}</div>` : ''}
+                        ${alert.geo_location ? `<div><strong>Location:</strong> ${escapeHtml(JSON.stringify(alert.geo_location))}</div>` : ''}
+                    </div>
+                </div>
+                
+                <div class="alert-footer">
+                    <div class="alert-status ${statusClass}">${escapeHtml(alert.status.toUpperCase())}</div>
+                    <div>
+                        ${getStatusActionButtons(alert)}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('alert-detail-container').innerHTML = html;
+        }
+        
+        function getSeverityIcon(severity) {
+            switch(severity.toLowerCase()) {
+                case 'critical':
+                    return '<i class="fas fa-exclamation-triangle icon-color-critical" style="font-size: 24px;"></i>';
+                case 'high':
+                    return '<i class="fas fa-exclamation-triangle icon-color-high" style="font-size: 24px;"></i>';
+                case 'medium':
+                    return '<i class="fas fa-exclamation-circle icon-color-medium" style="font-size: 24px;"></i>';
+                default:
+                    return '<i class="fas fa-info-circle icon-color-low" style="font-size: 24px;"></i>';
+            }
+        }
+        
+        function getStatusActionButtons(alert) {
+            if (alert.status === 'new') {
+                return `
+                    <button class="btn btn-sm btn-primary" onclick="updateAlertStatus('${alert.event_id}', 'investigating')">
+                        <i class="fas fa-check"></i> Mark Investigating
+                    </button>
+                `;
+            } else if (alert.status === 'investigating') {
+                return `
+                    <button class="btn btn-sm btn-primary" onclick="updateAlertStatus('${alert.event_id}', 'resolved')">
+                        <i class="fas fa-check-double"></i> Mark Resolved
+                    </button>
+                `;
+            } else {
+                return `<span class="badge bg-success">Alert Resolved</span>`;
+            }
+        }
+        
+        function updateAlertStatus(alertId, newStatus) {
+            fetch(`/api/alerts/${alertId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                // Reload the page to show updated status
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error updating alert status:', error);
+                alert('Failed to update alert status');
+            });
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            // Convert to string to handle non-string values (objects, numbers, etc.)
+            const str = String(text);
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return str.replace(/[&<>"']/g, m => map[m]);
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Toggle sidebar on mobile
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            
+            if (window.innerWidth <= 767) {
+                if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                    sidebar.classList.remove('show');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

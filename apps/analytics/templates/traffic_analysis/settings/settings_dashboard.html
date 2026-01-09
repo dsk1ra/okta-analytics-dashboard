@@ -1,0 +1,720 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okta Settings Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/euclid-circular-a.css' %}">
+    <link rel="stylesheet" href="{% static 'rest_framework/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/chart.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/dashboard.css' %}" nonce="{{ nonce }}">
+</head>
+<body>
+    <!-- Sidebar Toggle Button -->
+    <div class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/dashboard/" class="sidebar-brand">
+                Okta<span>Analytics</span>
+            </a>
+        </div>
+        
+        <div class="pt-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/events/">
+                        <i class="fas fa-list-alt"></i>
+                        <span>Events</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/alerts/">
+                        <i class="fas fa-bell"></i>
+                        <span>Alerts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/metrics/">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Metrics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/reports/">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-5">
+                    <a class="nav-link active" href="/settings/">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout/">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div>
+                <h1 class="page-title">Settings</h1>
+                <p class="page-description">Configure application settings, preferences, and integrations.</p>
+            </div>
+            <div class="user-dropdown">
+                <div class="user-info">
+                    <div class="user-name">Admin User</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+                <div class="user-avatar">A</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2 class="card-title">Configuration</h2>
+                <div class="tab-buttons">
+                    <button class="tab-button active" data-tab="general-settings">General</button>
+                    <button class="tab-button" data-tab="integrations">Integrations</button>
+                    <button class="tab-button" data-tab="notifications">Notifications</button>
+                    <button class="tab-button" data-tab="user-preferences">User Preferences</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- General Settings Tab -->
+                <div id="general-settings" class="tab-content active">
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <h3 class="settings-title">Application Settings</h3>
+                        </div>
+                        <form>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Data Retention Period</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" value="{{ retention_period_days }}" min="30" max="365">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">days</span>
+                                            </div>
+                                        </div>
+                                        <small class="form-text">How long to keep historical data before archiving</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">API Rate Limit</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" value="{{ api_rate_limit }}" min="1000" max="10000">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">requests/hour</span>
+                                            </div>
+                                        </div>
+                                        <small class="form-text">Maximum API requests per hour</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Default Dashboard View</label>
+                                <select class="form-control">
+                                    <option>Summary View</option>
+                                    <option>Detailed View</option>
+                                    <option>Compact View</option>
+                                </select>
+                                <small class="form-text">Default view for dashboard when users first log in</small>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Enable Audit Logging</label>
+                                        <div class="d-flex align-items-center">
+                                            <label class="toggle-switch mr-3">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <span class="badge-status status-enabled">Enabled</span>
+                                        </div>
+                                        <small class="form-text">Log all administrative actions for audit trail</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Debug Mode</label>
+                                        <div class="d-flex align-items-center">
+                                            <label class="toggle-switch mr-3">
+                                                <input type="checkbox">
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <span class="badge-status status-disabled">Disabled</span>
+                                        </div>
+                                        <small class="form-text">Enable additional logging for troubleshooting</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3 class="settings-title">Security Settings</h3>
+                        </div>
+                        <form>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Session Timeout</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" value="30" min="5" max="120">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">minutes</span>
+                                            </div>
+                                        </div>
+                                        <small class="form-text">Time of inactivity before session expires</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Login Attempts Before Lockout</label>
+                                        <input type="number" class="form-control" value="5" min="3" max="10">
+                                        <small class="form-text">Number of failed login attempts before temporary account lockout</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">IP Whitelist</label>
+                                <textarea class="form-control" rows="3" placeholder="Enter comma-separated IP addresses"></textarea>
+                                <small class="form-text">Restrict access to specific IP addresses (leave blank to allow all)</small>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Force HTTPS</label>
+                                        <div class="d-flex align-items-center">
+                                            <label class="toggle-switch mr-3">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <span class="badge-status status-enabled">Enabled</span>
+                                        </div>
+                                        <small class="form-text">Redirect all HTTP traffic to HTTPS</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-label">Strict Content Security Policy</label>
+                                        <div class="d-flex align-items-center">
+                                            <label class="toggle-switch mr-3">
+                                                <input type="checkbox" checked>
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <span class="badge-status status-enabled">Enabled</span>
+                                        </div>
+                                        <small class="form-text">Enforce strict CSP headers</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Integrations Tab -->
+                <div id="integrations" class="tab-content">
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-plug"></i>
+                            </div>
+                            <h3 class="settings-title">Okta Integration</h3>
+                        </div>
+                        <div class="mb-4">
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Okta integration is active and working properly.
+                                Last sync: {{ last_sync_time }}
+                            </div>
+                        </div>
+                        <form>
+                            <div class="form-group">
+                                <label class="form-label">Okta Domain</label>
+                                <input type="text" class="form-control" value="your-domain.okta.com" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">API Token</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" value="••••••••••••••••••••••" readonly>
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sync Frequency</label>
+                                <select class="form-control">
+                                    <option>Every 15 minutes</option>
+                                    <option selected>Every 30 minutes</option>
+                                    <option>Every hour</option>
+                                    <option>Every 2 hours</option>
+                                    <option>Every 6 hours</option>
+                                    <option>Daily</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Event Types to Sync</label>
+                                <select multiple class="form-control" size="5">
+                                    <option selected>User Login</option>
+                                    <option selected>Failed Login Attempts</option>
+                                    <option selected>Password Changes</option>
+                                    <option selected>MFA Enrollments/Changes</option>
+                                    <option selected>Group Membership Changes</option>
+                                    <option selected>Application Access</option>
+                                    <option>Network Zone Changes</option>
+                                    <option>Policy Changes</option>
+                                </select>
+                                <small class="form-text">Hold Ctrl/Cmd to select multiple options</small>
+                            </div>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-sync-alt mr-1"></i> Sync Now
+                            </button>
+                            <button class="btn btn-outline-primary ml-2">
+                                <i class="fas fa-key mr-1"></i> Update API Token
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <h3 class="settings-title">Webhook Configuration</h3>
+                        </div>
+                        <form>
+                            <div class="form-group">
+                                <label class="form-label">Enable Webhooks</label>
+                                <div class="d-flex align-items-center">
+                                    <label class="toggle-switch mr-3">
+                                        <input type="checkbox" {% if webhook_configured %}checked{% endif %}>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="badge-status {% if webhook_configured %}status-enabled{% else %}status-disabled{% endif %}">
+                                        {% if webhook_configured %}Enabled{% else %}Disabled{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Webhook URL</label>
+                                <input type="text" class="form-control" value="https://your-service.example.com/webhook/okta-events">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Secret Key</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" value="••••••••••••••••••••••">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" type="button">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <small class="form-text">Used to verify webhook payloads</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Events to Send</label>
+                                <select multiple class="form-control" size="4">
+                                    <option selected>Security Alerts (Critical)</option>
+                                    <option selected>Security Alerts (High)</option>
+                                    <option selected>User Lockouts</option>
+                                    <option>Failed API Calls</option>
+                                    <option>System Status Changes</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary">
+                                Save Changes
+                            </button>
+                            <button class="btn btn-outline-primary ml-2">
+                                Test Webhook
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Notifications Tab -->
+                <div id="notifications" class="tab-content">
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <h3 class="settings-title">Email Notifications</h3>
+                        </div>
+                        <form>
+                            <div class="form-group">
+                                <label class="form-label">Notification Email</label>
+                                <input type="email" class="form-control" value="{{ notification_email }}">
+                                <small class="form-text">Primary email for alerts and notifications</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Additional Recipients</label>
+                                <input type="text" class="form-control" placeholder="Enter comma-separated email addresses">
+                                <small class="form-text">Additional emails to receive notifications</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Alert Levels to Notify</label>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="notify-critical" checked>
+                                    <label class="custom-control-label" for="notify-critical">Critical Alerts</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="notify-high" checked>
+                                    <label class="custom-control-label" for="notify-high">High Alerts</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="notify-medium">
+                                    <label class="custom-control-label" for="notify-medium">Medium Alerts</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="notify-low">
+                                    <label class="custom-control-label" for="notify-low">Low Alerts</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Daily Summary Report</label>
+                                <div class="d-flex align-items-center">
+                                    <label class="toggle-switch mr-3">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="badge-status status-enabled">Enabled</span>
+                                </div>
+                                <small class="form-text">Send daily summary of all alerts and activities</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Weekly Analytics Report</label>
+                                <div class="d-flex align-items-center">
+                                    <label class="toggle-switch mr-3">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="badge-status status-enabled">Enabled</span>
+                                </div>
+                                <small class="form-text">Send weekly analytics and trend report</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Test Email Configuration</label>
+                                <button class="btn btn-outline-primary">
+                                    <i class="fas fa-paper-plane mr-1"></i> Send Test Email
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <h3 class="settings-title">In-App Notifications</h3>
+                        </div>
+                        <form>
+                            <div class="form-group">
+                                <label class="form-label">Enable In-App Notifications</label>
+                                <div class="d-flex align-items-center">
+                                    <label class="toggle-switch mr-3">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="badge-status status-enabled">Enabled</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Alert Levels to Show</label>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="app-critical" checked>
+                                    <label class="custom-control-label" for="app-critical">Critical Alerts</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="app-high" checked>
+                                    <label class="custom-control-label" for="app-high">High Alerts</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="app-medium" checked>
+                                    <label class="custom-control-label" for="app-medium">Medium Alerts</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="app-low">
+                                    <label class="custom-control-label" for="app-low">Low Alerts</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Notification Duration</label>
+                                <select class="form-control">
+                                    <option>5 seconds</option>
+                                    <option selected>10 seconds</option>
+                                    <option>15 seconds</option>
+                                    <option>30 seconds</option>
+                                </select>
+                                <small class="form-text">How long notifications should stay visible</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sound Alerts</label>
+                                <div class="d-flex align-items-center">
+                                    <label class="toggle-switch mr-3">
+                                        <input type="checkbox">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="badge-status status-disabled">Disabled</span>
+                                </div>
+                                <small class="form-text">Play sound for critical and high alerts</small>
+                            </div>
+                            <button class="btn btn-primary">
+                                Save Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- User Preferences Tab -->
+                <div id="user-preferences" class="tab-content">
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-paint-brush"></i>
+                            </div>
+                            <h3 class="settings-title">Display Preferences</h3>
+                        </div>
+                        <form>
+                            <div class="form-group">
+                                <label class="form-label">Theme</label>
+                                <select class="form-control">
+                                    {% for theme in available_themes %}
+                                    <option value="{{ theme.id }}" {% if theme.id == current_theme %}selected{% endif %}>{{ theme.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Dashboard Default View</label>
+                                <select class="form-control">
+                                    <option selected>Summary View</option>
+                                    <option>Detailed View</option>
+                                    <option>Compact View</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date Format</label>
+                                <select class="form-control">
+                                    <option selected>MM/DD/YYYY (US Format)</option>
+                                    <option>DD/MM/YYYY (European Format)</option>
+                                    <option>YYYY-MM-DD (ISO Format)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Time Format</label>
+                                <select class="form-control">
+                                    <option selected>12-hour format (AM/PM)</option>
+                                    <option>24-hour format</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Show welcome message on login</label>
+                                <div class="d-flex align-items-center">
+                                    <label class="toggle-switch mr-3">
+                                        <input type="checkbox" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                    <span class="badge-status status-enabled">Enabled</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary">
+                                Save Preferences
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <div class="settings-header">
+                            <div class="settings-icon">
+                                <i class="fas fa-user-cog"></i>
+                            </div>
+                            <h3 class="settings-title">Account Settings</h3>
+                        </div>
+                        <form>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" value="admin@example.com" readonly>
+                                <small class="form-text">Email is managed through Okta</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Name</label>
+                                <input type="text" class="form-control" value="Admin User" readonly>
+                                <small class="form-text">Name is managed through Okta</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Role</label>
+                                <input type="text" class="form-control" value="Administrator" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Login</label>
+                                <input type="text" class="form-control" value="May 1, 2025 22:45" readonly>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                User account information is synchronized from Okta. To update your profile, please log in to your Okta dashboard.
+                            </div>
+                            <a href="#" class="btn btn-outline-primary">
+                                <i class="fas fa-external-link-alt mr-1"></i> Go to Okta
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <button id="save-all-settings" class="btn btn-primary">
+                    Save All Changes
+                </button>
+                <button class="btn btn-outline-secondary ml-2">
+                    Reset to Defaults
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{% static 'rest_framework/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+    <script nonce="{{ nonce }}">
+        // Toggle sidebar on mobile
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+        
+        // Tab functionality
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and contents
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Show corresponding content
+                const tabId = button.dataset.tab;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Toggle switch status updater
+        document.querySelectorAll('.toggle-switch input').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const statusBadge = this.closest('.form-group').querySelector('.badge-status');
+                if (statusBadge) {
+                    if (this.checked) {
+                        statusBadge.textContent = 'Enabled';
+                        statusBadge.classList.remove('status-disabled');
+                        statusBadge.classList.add('status-enabled');
+                    } else {
+                        statusBadge.textContent = 'Disabled';
+                        statusBadge.classList.remove('status-enabled');
+                        statusBadge.classList.add('status-disabled');
+                    }
+                }
+            });
+        });
+        
+        // Password visibility toggle
+        document.querySelectorAll('.input-group .btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const input = this.closest('.input-group').querySelector('input');
+                const icon = this.querySelector('i');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+        
+        // Form submission handler (prevent actual submission in this demo)
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Show success message
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-success mt-3';
+                alert.innerHTML = '<i class="fas fa-check-circle mr-2"></i> Settings saved successfully!';
+                form.appendChild(alert);
+                
+                // Remove message after 3 seconds
+                setTimeout(() => {
+                    alert.remove();
+                }, 3000);
+            });
+        });
+        
+        // Global save button
+        document.getElementById('save-all-settings').addEventListener('click', function() {
+            // Show success message at the top
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = '<i class="fas fa-check-circle mr-2"></i> All settings saved successfully!';
+            
+            // Insert at the top of the card body
+            const cardBody = document.querySelector('.card-body');
+            cardBody.insertBefore(alert, cardBody.firstChild);
+            
+            // Remove message after 3 seconds
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

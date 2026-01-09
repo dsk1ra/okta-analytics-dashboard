@@ -1,0 +1,543 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Alert Dashboard</title>
+    <!-- Fonts: MongoDB uses Euclid Circular A -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Euclid+Circular+A:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Modern CSS frameworks -->
+    <link rel="stylesheet" href="{% static 'rest_framework/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/dashboard.css' %}" nonce="{{ nonce }}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/shared.css' %}" nonce="{{ nonce }}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/alerts.css' %}" nonce="{{ nonce }}">
+</head>
+<body>
+    <!-- Sidebar Toggle Button -->
+    <div class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/dashboard/" class="sidebar-brand">
+                Okta<span>Analytics</span>
+            </a>
+        </div>
+        
+        <div class="pt-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/events/">
+                        <i class="fas fa-list-alt"></i>
+                        <span>Events</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/alerts/">
+                        <i class="fas fa-bell"></i>
+                        <span>Alerts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/metrics/">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Metrics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/reports/">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-5">
+                    <a class="nav-link" href="/settings/">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout/">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div>
+                <h1 class="page-title">Security Alerts</h1>
+                <p class="page-description">Monitor and manage security alerts from your Okta environment.</p>
+            </div>
+            <div class="user-dropdown">
+                <div class="user-info">
+                    <div class="user-name">Admin User</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+                <div class="user-avatar">A</div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-primary">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">TOTAL ALERTS</div>
+                            <div class="stat-value">{{ total_alerts }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up mr-1"></i> 12.3%
+                        </div>
+                        <div class="stat-period">vs. previous 30 days</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">CRITICAL ALERTS</div>
+                            <div class="stat-value">{{ critical_alerts }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend trend-down">
+                            <i class="fas fa-arrow-down mr-1"></i> 5.7%
+                        </div>
+                        <div class="stat-period">vs. previous 30 days</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">HIGH ALERTS</div>
+                            <div class="stat-value">{{ high_alerts }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend trend-up">
+                            <i class="fas fa-arrow-up mr-1"></i> 8.2%
+                        </div>
+                        <div class="stat-period">vs. previous 30 days</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">ALERT RULES</div>
+                            <div class="stat-value">12</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-trend trend-neutral">
+                            <i class="fas fa-minus mr-1"></i> 0%
+                        </div>
+                        <div class="stat-period">vs. previous 30 days</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Severity Distribution -->
+        <div class="row equal-height-row g-3 align-items-stretch">
+            <div class="col-lg-4 d-flex">
+                <div class="content-card chart-card h-100 w-100">
+                    <div class="card-header">
+                        <h2 class="card-title">Alert Distribution</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="alertDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-8 d-flex">
+                <div class="content-card chart-card h-100 w-100">
+                    <div class="card-header">
+                        <h2 class="card-title">Alert Trends (Last 7 Days)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="alertTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Alerts -->
+        <div class="content-card mt-4">
+            <div class="card-header">
+                <h2 class="card-title">Recent Alerts</h2>
+                <div>
+                    <select class="form-select form-select-sm d-inline-block w-auto" onchange="window.location.href='?days='+this.value">
+                        <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 days</option>
+                        <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 days</option>
+                        <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 days</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <!-- Alert List -->
+                <div class="p-3">
+                    {% if alerts %}
+                        {% for alert in alerts %}
+                        <div class="alert-card alert-{{ alert.severity }}">
+                            <div class="alert-header">
+                                <div class="alert-title">
+                                    <div>
+                                        {% if alert.severity == 'critical' %}
+                                            <i class="fas fa-exclamation-triangle icon-color-critical"></i>
+                                        {% elif alert.severity == 'high' %}
+                                            <i class="fas fa-exclamation-triangle icon-color-high"></i>
+                                        {% elif alert.severity == 'medium' %}
+                                            <i class="fas fa-exclamation-circle icon-color-medium"></i>
+                                        {% else %}
+                                            <i class="fas fa-info-circle icon-color-low"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="alert-title-text">
+                                        <h3>{{ alert.event_type }}</h3>
+                                    </div>
+                                </div>
+                                <span class="alert-severity severity-{{ alert.severity }}">{{ alert.severity|title }}</span>
+                            </div>
+                            <div class="alert-message">
+                                {{ alert.message }}
+                            </div>
+                            <div class="alert-details">
+                                <span><i class="fas fa-user"></i> <strong>User:</strong> {{ alert.username }}</span>
+                                <span><i class="fas fa-globe"></i> <strong>IP:</strong> {{ alert.ip_address }}</span>
+                                {% if alert.timestamp %}
+                                    <span><i class="fas fa-clock"></i> <strong>Time:</strong> {{ alert.timestamp|date:"M d, Y g:i A" }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="alert-footer">
+                                <div class="alert-status status-{{ alert.status }}">{{ alert.status|title }}</div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="viewAlertDetails('{{ alert.event_id }}')">
+                                        <i class="fas fa-eye"></i> View Details
+                                    </button>
+                                    {% if alert.status == 'new' %}
+                                    <button class="btn btn-sm btn-primary" onclick="markAsInvestigating('{{ alert.event_id }}', event)">
+                                        <i class="fas fa-check"></i> Mark Investigating
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> No alerts found for the selected time period.
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                <div class="card-footer">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}" title="First page">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}" title="Previous page">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {# Always show first page #}
+                            {% if page_obj.number == 1 %}
+                            <li class="page-item active">
+                                <span class="page-link">1</span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}">1</a>
+                            </li>
+                            {% endif %}
+                            
+                            {# Show ellipsis if gap between first page and current range #}
+                            {% if page_obj.number > 4 %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            {% endif %}
+                            
+                            {# Show pages around current page #}
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if num > 1 and num < page_obj.paginator.num_pages %}
+                                    {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                                        {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                        {% else %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}">{{ num }}</a>
+                                        </li>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {# Show ellipsis if gap between current range and last page #}
+                            {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                            {% endif %}
+                            
+                            {# Always show last page #}
+                            {% if page_obj.paginator.num_pages > 1 %}
+                                {% if page_obj.number == page_obj.paginator.num_pages %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_obj.paginator.num_pages }}</span>
+                                </li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}">{{ page_obj.paginator.num_pages }}</a>
+                                </li>
+                                {% endif %}
+                            {% endif %}
+                            
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}" title="Next page">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}" title="Last page">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="{% static 'rest_framework/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js" nonce="{{ nonce }}"></script>
+    <script nonce="{{ nonce }}">
+        // Toggle sidebar on mobile
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+        
+            // Alert Distribution Chart
+            const alertCtx = document.getElementById('alertDistributionChart').getContext('2d');
+            const alertData = {
+                labels: ['Critical', 'High', 'Medium', 'Low'],
+                datasets: [{
+                    data: [{{ critical_alerts }}, {{ high_alerts }}, {{ medium_alerts }}, {{ low_alerts }}],
+                    backgroundColor: [
+                        '#DB3030',
+                        '#EF6C00',
+                        '#FFCA28',
+                        '#889392'
+                    ],
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            };
+        
+            const alertChart = new Chart(alertCtx, {
+                type: 'pie',
+                data: alertData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 10,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        
+            // Alert Trend Chart
+            const trendCtx = document.getElementById('alertTrendChart').getContext('2d');
+            const trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+                    datasets: [
+                        {
+                            label: 'High',
+                            data: [0, 0, 0, 0, 0, 0, {{ high_alerts }}],
+                            borderColor: '#EF6C00',
+                            backgroundColor: 'rgba(239, 108, 0, 0.1)',
+                            tension: 0.4,
+                            pointBackgroundColor: '#EF6C00',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            fill: true
+                        },
+                        {
+                            label: 'Critical',
+                            data: [0, 0, 0, 0, 0, 0, {{ critical_alerts }}],
+                            borderColor: '#DB3030',
+                            backgroundColor: 'rgba(219, 48, 48, 0.1)',
+                            tension: 0.4,
+                            pointBackgroundColor: '#DB3030',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            fill: true
+                        },
+                        {
+                            label: 'Medium',
+                            data: [0, 0, 0, 0, 0, 0, {{ medium_alerts }}],
+                            borderColor: '#FFCA28',
+                            backgroundColor: 'rgba(255, 202, 40, 0.1)',
+                            tension: 0.4,
+                            pointBackgroundColor: '#FFCA28',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 10,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        
+        // Alert action handlers
+        function viewAlertDetails(alertId) {
+            window.location.href = `/alerts/detail/?alert_id=${alertId}`;
+        }
+        
+        function markAsInvestigating(alertId, event) {
+            event.preventDefault();
+            
+            fetch(`/api/alerts/${alertId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ status: 'investigating' })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                // Reload the page to show updated status
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error updating alert status:', error);
+                alert('Failed to update alert status');
+            });
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

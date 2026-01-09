@@ -1,0 +1,150 @@
+/* Shared Component Styles */
+
+/* Pagination - Consistent across all pages */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pagination .page-item {
+    list-style: none;
+}
+
+.pagination .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    background-color: white;
+    color: #6B7280;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.pagination .page-link:hover {
+    background-color: #F9FAFB;
+    border-color: #01C853;
+    color: #01C853;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #01C853 0%, #00A347 100%);
+    border-color: #01C853;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(1, 200, 83, 0.25);
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #F9FAFB;
+    border-color: #E5E7EB;
+    color: #D1D5DB;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pagination .page-link i {
+    line-height: 1;
+    display: inline-block;
+}
+
+/* Ensure icons are visible and centered */
+.pagination .page-link:has(i:only-child) {
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Card footer styling for pagination */
+.card-footer {
+    background-color: #F9FAFB;
+    border-top: 1px solid #E5E7EB;
+    padding: 20px;
+}
+
+/* Consistent badge/badge styling */
+.badge, .badge-base {
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Button consistency */
+.btn-sm {
+    padding: 8px 16px;
+    font-weight: 500;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.btn-outline-secondary {
+    color: #6B7280;
+    border-color: #D1D5DB;
+    background-color: white;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #F9FAFB;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-primary {
+    color: white;
+    background-color: var(--green-2);
+    border-color: var(--green-2);
+}
+
+.btn-primary:hover {
+    background-color: var(--green-secondary);
+    border-color: var(--green-secondary);
+    box-shadow: 0 4px 8px rgba(1, 200, 83, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Table consistency */
+.table-base {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-base th {
+    font-weight: 600;
+    padding: 12px 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.table-base td {
+    border-top: 1px solid #E5E7EB;
+    vertical-align: middle;
+}
+
+.table-base tbody tr:hover {
+    background-color: rgba(1, 200, 83, 0.03);
+}

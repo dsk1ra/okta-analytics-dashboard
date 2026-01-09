@@ -1,0 +1,416 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Okta Events Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/euclid-circular-a.css' %}">
+    <link rel="stylesheet" href="{% static 'rest_framework/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/chart.min.css' %}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/dashboard.css' %}" nonce="{{ nonce }}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/shared.css' %}" nonce="{{ nonce }}">
+    <link rel="stylesheet" href="{% static 'traffic_analysis/css/events.css' %}" nonce="{{ nonce }}">
+</head>
+
+<body>
+    <!-- Sidebar Toggle Button -->
+    <div class="sidebar-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <a href="/dashboard/" class="sidebar-brand">
+                Okta<span>Analytics</span>
+            </a>
+        </div>
+        
+        <div class="pt-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" href="/dashboard/">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/events/">
+                        <i class="fas fa-list-alt"></i>
+                        <span>Events</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/alerts/">
+                        <i class="fas fa-bell"></i>
+                        <span>Alerts</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/metrics/">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Metrics</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/reports/">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="nav-item mt-5">
+                    <a class="nav-link" href="/settings/">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout/">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div>
+                <h1 class="page-title">Security Events</h1>
+                <p class="page-description">Monitor and analyze security events from your Okta environment.</p>
+            </div>
+            <div class="user-dropdown">
+                <div class="user-info">
+                    <div class="user-name">Admin User</div>
+                    <div class="user-role">Administrator</div>
+                </div>
+                <div class="user-avatar">A</div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-primary">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">TOTAL EVENTS</div>
+                            <div class="stat-value">{{ total_events }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-period">Last {{ days }} days</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-danger">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">HIGH SEVERITY</div>
+                            <div class="stat-value" style="color: var(--red-2);" nonce="{{ nonce }}">{{ high_severity_count }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-period">Last {{ days }} days</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">MEDIUM SEVERITY</div>
+                            <div class="stat-value" style="color: var(--yellow-1);" nonce="{{ nonce }}">{{ medium_severity_count }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-period">Last {{ days }} days</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-icon icon-success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div>
+                            <div class="stat-title">LOW SEVERITY</div>
+                            <div class="stat-value" style="color: var(--green-2);" nonce="{{ nonce }}">{{ low_severity_count }}</div>
+                        </div>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="stat-period">Last {{ days }} days</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter section -->
+        <div class="content-card mb-4 mt-4">
+            <div class="card-header">
+                <h2 class="card-title">Filter Events</h2>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="event_type" class="form-label">Event Type</label>
+                        <select name="event_type" id="event_type" class="form-select">
+                            <option value="">All Events</option>
+                            {% for event_type in available_event_types %}
+                            <option value="{{ event_type }}" {% if event_type == selected_event_type %}selected{% endif %}>{{ event_type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="severity" class="form-label">Severity</label>
+                        <select name="severity" id="severity" class="form-select">
+                            <option value="">All Severities</option>
+                            {% for severity in available_severities %}
+                            <option value="{{ severity }}" {% if severity == selected_severity %}selected{% endif %}>{{ severity }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="days" class="form-label">Time Range</label>
+                        <select name="days" id="days" class="form-select">
+                            <option value="1" {% if days == 1 %}selected{% endif %}>Last 24 Hours</option>
+                            <option value="7" {% if days == 7 %}selected{% endif %}>Last 7 Days</option>
+                            <option value="30" {% if days == 30 %}selected{% endif %}>Last 30 Days</option>
+                            <option value="90" {% if days == 90 %}selected{% endif %}>Last 90 Days</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="search" class="form-label">Search</label>
+                        <input type="text" name="search" id="search" class="form-control" placeholder="Search events..." value="{{ search_query }}">
+                    </div>
+                    <div class="col-md-1 d-flex justify-content-center">
+                        <button type="submit" class="btn btn-primary btn-wrap w-100">Apply</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        {% if events %}
+        <!-- Events table -->
+        <div class="content-card mt-5">
+            <div class="card-header">
+                <h2 class="card-title">Event Results</h2>
+                <div>
+                    <span class="badge bg-secondary">{{ total_events }} events found</span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="activity-table larger-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Severity</th>
+                                <th>Date/Time</th>
+                                <th>IP Address</th>
+                                <th>User</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                            <tr class="event-row">
+                                <td class="event-col-description">
+                                    <div class="event-description">{{ event.display_message|truncatechars:40 }}</div>
+                                </td>
+                                <td class="event-col-severity">
+                                    {% if event.severity == 'HIGH' %}
+                                    <span class="status-badge status-failure">High</span>
+                                    {% elif event.severity == 'MEDIUM' %}
+                                    <span class="status-badge status-warning">Medium</span>
+                                    {% elif event.severity == 'LOW' %}
+                                    <span class="status-badge status-neutral">Low</span>
+                                    {% else %}
+                                    <span class="status-badge status-neutral">Info</span>
+                                    {% endif %}
+                                </td>
+                                <td class="event-col-datetime">
+                                    <div class="event-time">
+                                        {{ event.published_formatted }}
+                                    </div>
+                                </td>
+                                <td class="event-col-ip">{{ event.ip_address|default:"N/A" }}</td>
+                                <td class="event-col-user">
+                                    {% if event.actor.alternate_id %}
+                                        {{ event.actor.alternate_id }}
+                                    {% else %}
+                                        {{ event.actor.display_name|default:"System" }}
+                                    {% endif %}
+                                </td>
+                                <td class="event-col-status">
+                                    {% if event.outcome.result == 'SUCCESS' %}
+                                    <span class="status-badge status-success">Success</span>
+                                    {% elif event.outcome.result == 'FAILURE' %}
+                                    <span class="status-badge status-failure">Failed</span>
+                                    {% else %}
+                                    <span class="status-badge status-neutral">{{ event.outcome.result|default:"Unknown" }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="event-col-actions">
+                                    <a href="/events/detail/{{ event.uuid }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Pagination in card footer -->
+            {% if is_paginated %}
+            <div class="card-footer">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination mb-0">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if request.GET.event_type %}&event_type={{ request.GET.event_type }}{% endif %}{% if request.GET.severity %}&severity={{ request.GET.severity }}{% endif %}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" title="First page">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.event_type %}&event_type={{ request.GET.event_type }}{% endif %}{% if request.GET.severity %}&severity={{ request.GET.severity }}{% endif %}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" title="Previous page">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {# Always show first page #}
+                        {% if page_obj.number == 1 %}
+                        <li class="page-item active">
+                            <span class="page-link">1</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if request.GET.event_type %}&event_type={{ request.GET.event_type }}{% endif %}{% if request.GET.severity %}&severity={{ request.GET.severity }}{% endif %}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">1</a>
+                        </li>
+                        {% endif %}
+                        
+                        {# Show ellipsis if gap between first page and current range #}
+                        {% if page_obj.number > 4 %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                        
+                        {# Show pages around current page #}
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if num > 1 and num < page_obj.paginator.num_pages %}
+                                {% if num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+                                    {% if page_obj.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}{% if request.GET.event_type %}&event_type={{ request.GET.event_type }}{% endif %}{% if request.GET.severity %}&severity={{ request.GET.severity }}{% endif %}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {# Show ellipsis if gap between current range and last page #}
+                        {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                        {% endif %}
+                        
+                        {# Always show last page #}
+                        {% if page_obj.paginator.num_pages > 1 %}
+                            {% if page_obj.number == page_obj.paginator.num_pages %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_obj.paginator.num_pages }}</span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.event_type %}&event_type={{ request.GET.event_type }}{% endif %}{% if request.GET.severity %}&severity={{ request.GET.severity }}{% endif %}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}">{{ page_obj.paginator.num_pages }}</a>
+                            </li>
+                            {% endif %}
+                        {% endif %}
+                        
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.event_type %}&event_type={{ request.GET.event_type }}{% endif %}{% if request.GET.severity %}&severity={{ request.GET.severity }}{% endif %}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" title="Next page">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.event_type %}&event_type={{ request.GET.event_type }}{% endif %}{% if request.GET.severity %}&severity={{ request.GET.severity }}{% endif %}{% if request.GET.days %}&days={{ request.GET.days }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" title="Last page">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% else %}
+        <!-- No events message -->
+        <div class="alert alert-info mt-4">
+            <i class="fas fa-info-circle"></i> No events found matching your criteria. Try adjusting your filters.
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="{% static 'rest_framework/js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'rest_framework/js/bootstrap.min.js' %}"></script>
+    <script nonce="{{ nonce }}">
+        // Toggle sidebar on mobile
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('show');
+        });
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            
+            if (window.innerWidth <= 767) {
+                if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+                    sidebar.classList.remove('show');
+                }
+            }
+        });
+        
+        // Initialize animations when content is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add any additional initialization here if needed
+        });
+    </script>
+</body>
+</html>

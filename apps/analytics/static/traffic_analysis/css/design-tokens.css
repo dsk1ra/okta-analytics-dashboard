@@ -1,0 +1,159 @@
+/* 
+ * Okta Dashboard Design System Tokens
+ * A unified set of design variables to ensure consistency across all dashboard pages
+ */
+
+:root {
+  /* Color System - Primary Palette */
+  --okta-blue-100: #E6F0FF;
+  --okta-blue-200: #B3D1FF;
+  --okta-blue-300: #80B3FF;
+  --okta-blue-400: #4D94FF;
+  --okta-blue-500: #0D6EFD; /* Primary Brand Blue */
+  --okta-blue-600: #0953C7;
+  --okta-blue-700: #073F94;
+  --okta-blue-800: #052C69;
+  --okta-blue-900: #021933;
+  
+  --okta-green-100: #E6FAF0;
+  --okta-green-200: #C3F0DA;
+  --okta-green-300: #9FE6C5;
+  --okta-green-400: #4DD18A;
+  --okta-green-500: #01C853; /* Primary Brand Green */
+  --okta-green-600: #00A347;
+  --okta-green-700: #00843A;
+  --okta-green-800: #00652D;
+  --okta-green-900: #004D22;
+
+  /* Neutral Palette */
+  --neutral-white: #FFFFFF;
+  --neutral-100: #F9FBFA;
+  --neutral-200: #E8EDEB;
+  --neutral-300: #D1D5D4;
+  --neutral-400: #C1C7C6;
+  --neutral-500: #A3A9A8;
+  --neutral-600: #889392;
+  --neutral-700: #616A69;
+  --neutral-800: #333F3E;
+  --neutral-900: #001E2B;
+  
+  /* Semantic Colors */
+  --status-success: var(--okta-green-500);
+  --status-warning: #FFCA28;
+  --status-danger: #DB3030;
+  --status-info: var(--okta-blue-500);
+  --status-neutral: var(--neutral-600);
+  --status-purple: #6E31E0;
+  --status-orange: #EF6C00;
+
+  /* Status Colors with Opacity */
+  --status-success-bg: rgba(1, 200, 83, 0.1);
+  --status-warning-bg: rgba(255, 202, 40, 0.1);
+  --status-danger-bg: rgba(219, 48, 48, 0.1);
+  --status-info-bg: rgba(13, 110, 253, 0.1);
+  --status-purple-bg: rgba(110, 49, 224, 0.1);
+  --status-orange-bg: rgba(239, 108, 0, 0.1);
+  
+  /* Typography Scale - Based on 1rem = 16px */
+  --font-size-xs: 0.75rem;     /* 12px */
+  --font-size-sm: 0.875rem;    /* 14px */
+  --font-size-base: 1rem;      /* 16px */
+  --font-size-md: 1.125rem;    /* 18px */
+  --font-size-lg: 1.25rem;     /* 20px */
+  --font-size-xl: 1.5rem;      /* 24px */
+  --font-size-2xl: 1.875rem;   /* 30px */
+  --font-size-3xl: 2.25rem;    /* 36px */
+  --font-size-4xl: 3rem;       /* 48px */
+  
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Line Heights */
+  --line-height-tight: 1.2;
+  --line-height-base: 1.5;
+  --line-height-relaxed: 1.7;
+  
+  /* Spacing Scale */
+  --space-0: 0;
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.5rem;   /* 24px */
+  --space-6: 2rem;     /* 32px */
+  --space-7: 2.5rem;   /* 40px */
+  --space-8: 3rem;     /* 48px */
+  --space-9: 4rem;     /* 64px */
+  --space-10: 5rem;    /* 80px */
+  
+  /* Border Radius */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;  /* 4px */
+  --radius-md: 0.5rem;   /* 8px */
+  --radius-lg: 0.75rem;  /* 12px */
+  --radius-xl: 1rem;     /* 16px */
+  --radius-full: 9999px;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.15);
+  
+  /* Transitions */
+  --transition-fast: 150ms;
+  --transition-base: 250ms;
+  --transition-slow: 350ms;
+  --transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-Index Scale */
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040; 
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+}
+
+/* Aliases for backward compatibility - 
+   Make it easier to transition from old variable naming */
+:root {
+  /* Color mappings */
+  --green-primary: var(--okta-green-500);
+  --green-secondary: var(--okta-green-600);
+  --blue-primary: var(--okta-blue-500);
+  --blue-secondary: var(--okta-blue-600);
+  
+  --dark-primary: var(--neutral-900);
+  --dark-secondary: var(--neutral-800);
+  
+  --gray-lightest: var(--neutral-100);
+  --gray-light: var(--neutral-200);
+  --gray-medium: var(--neutral-400);
+  --gray-dark: var(--neutral-600);
+  
+  --yellow: var(--status-warning);
+  --red: var(--status-danger);
+  --purple: var(--status-purple);
+  --orange: var(--status-orange);
+  
+  /* Legacy variable names */
+  --green-1: var(--okta-green-400);
+  --green-2: var(--okta-green-500);
+  --blue-1: var(--okta-blue-500);
+  --blue-2: var(--okta-blue-600);
+  --dark-1: var(--neutral-900);
+  --dark-2: var(--neutral-800);
+  --gray-1: var(--neutral-100);
+  --gray-2: var(--neutral-200);
+  --gray-3: var(--neutral-400);
+  --gray-4: var(--neutral-600);
+  --yellow-1: var(--status-warning);
+  --red-1: var(--status-orange);
+  --red-2: var(--status-danger);
+  --purple-1: var(--status-purple);
+}

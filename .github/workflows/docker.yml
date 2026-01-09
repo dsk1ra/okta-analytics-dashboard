@@ -1,0 +1,26 @@
+name: Docker CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Dockerfile
+        run: |
+          if [ ! -f Dockerfile ]; then
+            echo "Dockerfile not found!"
+            exit 1
+          fi
+          echo "Dockerfile exists and is readable"
+          
+      - name: Build image
+        if: ${{ !env.ACT }}
+        run: docker build -t okta-analytics-dashboard:ci .

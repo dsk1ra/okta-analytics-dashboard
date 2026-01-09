@@ -1,0 +1,58 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'insecure-ci-key-change-in-production' }}
+      DEBUG: "True"
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,web
+      DATA_SOURCE: sample
+      OKTA_API_TOKEN: ${{ secrets.OKTA_API_TOKEN || 'test-token' }}
+      OKTA_ORG_URL: ${{ secrets.OKTA_ORG_URL || 'https://test.okta.com' }}
+      OKTA_CLIENT_ID: ${{ secrets.OKTA_CLIENT_ID || 'test-client-id' }}
+      OKTA_CLIENT_SECRET: ${{ secrets.OKTA_CLIENT_SECRET || 'test-client-secret' }}
+      OKTA_AUTHORIZATION_ORG_URL: ${{ secrets.OKTA_AUTHORIZATION_ORG_URL || 'https://test.okta.com' }}
+      OKTA_AUTHORIZATION_CLIENT_ID: ${{ secrets.OKTA_AUTHORIZATION_CLIENT_ID || 'test-auth-client-id' }}
+      OKTA_AUTHORIZATION_CLIENT_SECRET: ${{ secrets.OKTA_AUTHORIZATION_CLIENT_SECRET || 'test-auth-client-secret' }}
+      OKTA_REDIRECT_URI: http://127.0.0.1:8000/okta/callback
+      OKTA_SCOPES: openid profile email okta.users.read okta.logs.read okta.apps.read
+      MONGO_HOST: mongodb
+      MONGO_PORT: "27017"
+      MONGO_USER: admin
+      MONGO_PASSWORD: admin
+      MONGO_DB_NAME: OktaDashboardDB
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Verify Python
+        run: python3 --version
+
+      - name: Upgrade pip
+        run: python3 -m pip install --upgrade "pip<25"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+        shell: bash
+
+      - name: Run tests
+        run: pytest -q
